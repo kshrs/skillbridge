@@ -20,10 +20,12 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  const fetchProfile = async () => {
+  const fetchProfile = async (currentToken = token) => {
+    const activeToken = currentToken || token;
+    if (!activeToken) return;
     try {
       const res = await fetch('/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${activeToken}` }
       });
       const data = await res.json();
       if (data.success) {
@@ -41,39 +43,48 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    if (data.success) {
-      setToken(data.token);
-      setUser(data.user);
-      localStorage.setItem('sb_token', data.token);
-      localStorage.setItem('sb_user', JSON.stringify(data.user));
-      await fetchProfile();
-      return { success: true };
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setToken(data.token);
+        setUser(data.user);
+        localStorage.setItem('sb_token', data.token);
+        localStorage.setItem('sb_user', JSON.stringify(data.user));
+        // Pass token directly to avoid state race condition
+        fetchProfile(data.token);
+        return { success: true };
+      }
+      return { success: false, message: data.message || 'Invalid credentials' };
+    } catch (err) {
+      return { success: false, message: 'Server connection failed. Please ensure the backend is running.' };
     }
-    return { success: false, message: data.message };
   };
 
   const register = async (name, email, password, role = 'student', targetRole = 'Full Stack Developer') => {
-    const res = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, role, targetRole })
-    });
-    const data = await res.json();
-    if (data.success) {
-      setToken(data.token);
-      setUser(data.user);
-      localStorage.setItem('sb_token', data.token);
-      localStorage.setItem('sb_user', JSON.stringify(data.user));
-      await fetchProfile();
-      return { success: true };
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), password, role, targetRole })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setToken(data.token);
+        setUser(data.user);
+        localStorage.setItem('sb_token', data.token);
+        localStorage.setItem('sb_user', JSON.stringify(data.user));
+        fetchProfile(data.token);
+        return { success: true };
+      }
+      return { success: false, message: data.message || 'Registration failed' };
+    } catch (err) {
+      return { success: false, message: 'Server connection failed. Please ensure the backend is running.' };
     }
-    return { success: false, message: data.message };
   };
 
   const logout = () => {
