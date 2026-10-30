@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from './context/AuthContext';
+import { useTheme } from './context/ThemeContext';
 import { Sidebar, Header } from './components/Navigation';
 import { DashboardView } from './components/DashboardView';
 import { CurriculumView } from './components/CurriculumView';
@@ -25,11 +26,13 @@ export function App() {
     fetchProfile 
   } = useAuth();
 
+  const { theme, toggleTheme } = useTheme();
+
   const [activeTab, setActiveTab] = useState('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
-    <div className="min-h-screen bg-[#0e1013] text-[#e1e4ea] flex font-sans">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] flex font-sans">
       {/* Auth Modal if unauthenticated */}
       {!token && (
         <AuthModal onLogin={login} onRegister={register} />
@@ -50,6 +53,8 @@ export function App() {
           user={user}
           onLogout={logout}
           setActiveTab={setActiveTab}
+          theme={theme}
+          toggleTheme={toggleTheme}
         />
 
         <main className="flex-1 p-6 md:p-8 overflow-y-auto">

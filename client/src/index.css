@@ -3,56 +3,148 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  --bg-main: #0e1013;
+  --bg-card: #15181e;
+  --bg-card-sub: #1b1e25;
+  --bg-input: #111317;
+  --border-main: rgba(255, 255, 255, 0.05);
+  --border-sub: rgba(255, 255, 255, 0.08);
+  --text-main: #e1e4ea;
+  --text-muted: #8892a2;
+}
+
+html.light {
+  --bg-main: #f3f4f6;
+  --bg-card: #ffffff;
+  --bg-card-sub: #f8fafc;
+  --bg-input: #f1f5f9;
+  --border-main: rgba(0, 0, 0, 0.08);
+  --border-sub: rgba(0, 0, 0, 0.12);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  color-scheme: light;
 }
 
 body {
   margin: 0;
-  background-color: #0e1013;
-  color: #d1d5db;
+  background-color: var(--bg-main);
+  color: var(--text-main);
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Custom scrollbars matching the dark matte UI */
+/* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #121417;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #23272f;
+  background: #374151;
   border-radius: 9999px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+html.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
 }
 
 /* Glass & Card effects like UI reference */
 .app-card {
-  background-color: #15181e;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-main);
   border-radius: 24px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 }
 
 .app-card-sub {
-  background-color: #1b1e25;
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  background-color: var(--bg-card-sub);
+  border: 1px solid var(--border-main);
   border-radius: 18px;
 }
 
 .app-card-highlight {
-  background-color: #181b22;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-sub);
 }
 
 .pill-tag {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(125, 125, 125, 0.08);
+  border: 1px solid var(--border-main);
   border-radius: 9999px;
+}
+
+/* Light mode text & element overrides for components with hardcoded dark styles */
+html.light .text-white {
+  color: #0f172a !important;
+}
+
+html.light .text-gray-400,
+html.light .text-\[\#7d8697\],
+html.light .text-\[\#7e8798\],
+html.light .text-\[\#8c95a6\],
+html.light .text-\[\#8c96a7\],
+html.light .text-\[\#6e7788\],
+html.light .text-\[\#697283\],
+html.light .text-\[\#697284\],
+html.light .text-\[\#6d7789\],
+html.light .text-\[\#8892a2\],
+html.light .text-\[\#8a94a5\],
+html.light .text-\[\#b0bac8\],
+html.light .text-\[\#cbd2e0\],
+html.light .text-\[\#c4ccd8\] {
+  color: #475569 !important;
+}
+
+html.light .bg-\[\#111317\],
+html.light .bg-\[\#101217\],
+html.light .bg-\[\#0f1115\],
+html.light .bg-\[\#0f1116\],
+html.light .bg-\[\#121419\],
+html.light .bg-\[\#13151a\],
+html.light .bg-\[\#14171d\],
+html.light .bg-\[\#16191f\],
+html.light .bg-\[\#161920\],
+html.light .bg-\[\#161a22\],
+html.light .bg-\[\#1b1f27\] {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .border-\[\#1e222b\],
+html.light .border-\[\#181c24\],
+html.light .border-\[\#232833\],
+html.light .border-\[\#20242e\],
+html.light .border-\[\#202530\],
+html.light .border-\[\#1f242e\],
+html.light .border-\[\#252a36\],
+html.light .border-\[\#222732\],
+html.light .border-\[\#2b313e\],
+html.light .border-\[\#2d3444\],
+html.light .border-\[\#242934\] {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .bg-white.text-\[\#121417\],
+html.light .bg-white.text-black {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+html.light .bg-white.text-black:hover,
+html.light .bg-white.text-\[\#121417\]:hover {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+html.light .bg-\[\#202530\] {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html.light .bg-\[\#202530\]:hover {
+  background-color: #cbd5e1 !important;
 }

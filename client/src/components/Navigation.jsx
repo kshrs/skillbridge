@@ -84,7 +84,7 @@ export const Sidebar = ({ activeTab, setActiveTab, userRole }) => {
   );
 };
 
-export const Header = ({ onSearch, searchQuery, user, onLogout, setActiveTab }) => {
+export const Header = ({ onSearch, searchQuery, user, onLogout, setActiveTab, theme, toggleTheme }) => {
   return (
     <header className="flex items-center justify-between px-8 py-5 border-b border-[#181c24] bg-[#0e1013]/80 backdrop-blur-md sticky top-0 z-20">
       {/* Search Input pill */}
@@ -104,6 +104,15 @@ export const Header = ({ onSearch, searchQuery, user, onLogout, setActiveTab }) 
 
       {/* Right controls */}
       <div className="flex items-center gap-4">
+        {/* Theme Toggle Button */}
+        <button
+          onClick={toggleTheme}
+          title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+          className="w-10 h-10 rounded-2xl bg-[#161920] border border-[#252a36] flex items-center justify-center text-[#9aa2b1] hover:text-[#d97746] hover:border-[#d97746]/40 transition-colors"
+        >
+          {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+        </button>
+
         {/* Skill Gap Badge */}
         <div 
           onClick={() => setActiveTab('profile')}
