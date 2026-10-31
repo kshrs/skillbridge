@@ -10,6 +10,7 @@ import courseRoutes from './routes/courseRoutes.js';
 import mentorRoutes from './routes/mentorRoutes.js';
 import assessmentRoutes from './routes/assessmentRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import interviewRoutes from './routes/interviewRoutes.js';
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/mentors', mentorRoutes);
 app.use('/api/assessments', assessmentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/interview', interviewRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

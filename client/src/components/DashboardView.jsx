@@ -15,11 +15,13 @@ import {
 } from 'lucide-react';
 import { TokenBarChart, EmbeddingsScatterChart, AttentionArcChart } from './DataVisualizations';
 import { VideoModal } from './VideoModal';
+import { InterviewPrepModal } from './InterviewPrepModal';
 import { CONCEPT_VIDEOS } from '../data/conceptVideos';
 
-export const DashboardView = ({ user, skillGap, setActiveTab, onQuickApply }) => {
+export const DashboardView = ({ user, skillGap, setActiveTab, onQuickApply, token }) => {
   const [selectedDay, setSelectedDay] = useState(22);
   const [activeVideo, setActiveVideo] = useState(null);
+  const [activeInterviewModule, setActiveInterviewModule] = useState(null);
   const calendarDays = [
     { day: 'M', date: 19 },
     { day: 'T', date: 20 },
@@ -35,6 +37,15 @@ export const DashboardView = ({ user, skillGap, setActiveTab, onQuickApply }) =>
       {/* Video Lecture Modal */}
       {activeVideo && (
         <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />
+      )}
+
+      {/* 92-Question Interview Prep Arena Modal */}
+      {activeInterviewModule && (
+        <InterviewPrepModal
+          initialModule={activeInterviewModule}
+          onClose={() => setActiveInterviewModule(null)}
+          token={token}
+        />
       )}
 
       {/* Top Main Grid matching the exact layout of the attached UI */}
@@ -380,7 +391,7 @@ export const DashboardView = ({ user, skillGap, setActiveTab, onQuickApply }) =>
               {/* Module Questions List */}
               <div className="space-y-2 pt-1">
                 <div 
-                  onClick={() => setActiveTab('skill-assessment')}
+                  onClick={() => setActiveInterviewModule('model foundations')}
                   className="flex items-center justify-between p-2.5 rounded-xl hover:bg-[#191d25] cursor-pointer transition-colors"
                 >
                   <span className="text-xs font-medium text-[#c4ccd8]">Model Foundations</span>
@@ -391,7 +402,7 @@ export const DashboardView = ({ user, skillGap, setActiveTab, onQuickApply }) =>
                 </div>
 
                 <div 
-                  onClick={() => setActiveTab('skill-assessment')}
+                  onClick={() => setActiveInterviewModule('inference and model optimization')}
                   className="flex items-center justify-between p-2.5 rounded-xl hover:bg-[#191d25] cursor-pointer transition-colors"
                 >
                   <span className="text-xs font-medium text-[#c4ccd8]">Inference and Model Optimization</span>
@@ -402,7 +413,7 @@ export const DashboardView = ({ user, skillGap, setActiveTab, onQuickApply }) =>
                 </div>
 
                 <div 
-                  onClick={() => setActiveTab('skill-assessment')}
+                  onClick={() => setActiveInterviewModule('prompt and context engineering')}
                   className="flex items-center justify-between p-2.5 rounded-xl hover:bg-[#191d25] cursor-pointer transition-colors"
                 >
                   <span className="text-xs font-medium text-[#c4ccd8]">Prompt and Context Engineering</span>
@@ -415,8 +426,8 @@ export const DashboardView = ({ user, skillGap, setActiveTab, onQuickApply }) =>
             </div>
 
             <button 
-              onClick={() => setActiveTab('skill-assessment')}
-              className="w-full py-2.5 rounded-xl bg-[#202530] hover:bg-[#29303e] text-xs font-semibold text-[#cbd2e0] border border-[#2d3444] transition-colors mt-2"
+              onClick={() => setActiveInterviewModule('all')}
+              className="w-full py-2.5 rounded-xl bg-white text-black font-bold text-xs hover:bg-gray-200 transition-colors mt-2 shadow"
             >
               Practise all 92 questions
             </button>

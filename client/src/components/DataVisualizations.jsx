@@ -11,18 +11,18 @@ export const TokenBarChart = ({ compact = false }) => {
   ];
 
   return (
-    <div className={`w-full bg-[#13151a] rounded-2xl p-4 border border-[#20242e] flex flex-col justify-between ${compact ? 'h-36' : 'h-44'}`}>
-      <div className="flex items-center justify-between text-[11px] text-[#717888] font-mono">
-        <span>Tokens per sequence • GPT-4 vs Llama-3</span>
-        <span className="flex items-center gap-2">
+    <div className={`w-full max-w-full overflow-hidden bg-[#13151a] rounded-2xl p-3 sm:p-4 border border-[#20242e] flex flex-col justify-between ${compact ? 'h-36' : 'h-44'}`}>
+      <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-[#717888] font-mono truncate gap-1">
+        <span className="truncate">Tokens per sequence • GPT vs Llama</span>
+        <span className="flex items-center gap-1.5 shrink-0">
           <span className="inline-block w-2 h-2 rounded-full bg-[#f3c46e]"></span>
           <span className="inline-block w-2 h-2 rounded-full bg-[#9ed68c]"></span>
         </span>
       </div>
 
-      <div className="flex items-end justify-between gap-3 h-24 pt-3">
+      <div className="flex items-end justify-between gap-1.5 sm:gap-3 h-24 pt-2">
         {bars.map((item, idx) => (
-          <div key={idx} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+          <div key={idx} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end min-w-0">
             <div className="w-full flex items-end justify-center gap-1 h-full">
               <div
                 style={{ height: `${item.h1}%` }}
@@ -37,7 +37,7 @@ export const TokenBarChart = ({ compact = false }) => {
                 className="w-1.5 sm:w-2 bg-[#708098] rounded-t-sm transition-all duration-500"
               ></div>
             </div>
-            <span className="text-[10px] text-[#636c7e] font-sans truncate w-full text-center">
+            <span className="text-[9px] sm:text-[10px] text-[#636c7e] font-sans truncate w-full text-center">
               {item.label}
             </span>
           </div>
@@ -50,23 +50,23 @@ export const TokenBarChart = ({ compact = false }) => {
 // 2. Scatter / Embeddings Dimensionality Scatter Chart
 export const EmbeddingsScatterChart = () => {
   const dots = [
-    { x: 15, y: 70, color: '#f3c46e', size: 6 },
-    { x: 22, y: 65, color: '#f3c46e', size: 8 },
+    { x: 15, y: 70, color: '#f3c46e', size: 5 },
+    { x: 22, y: 65, color: '#f3c46e', size: 7 },
     { x: 28, y: 75, color: '#f3a478', size: 5 },
-    { x: 55, y: 35, color: '#9ed68c', size: 7 },
-    { x: 62, y: 45, color: '#9ed68c', size: 9 },
+    { x: 55, y: 35, color: '#9ed68c', size: 6 },
+    { x: 62, y: 45, color: '#9ed68c', size: 8 },
     { x: 70, y: 30, color: '#6ca8f7', size: 6 },
-    { x: 75, y: 50, color: '#9ed68c', size: 7 },
-    { x: 82, y: 60, color: '#f3a478', size: 8 },
+    { x: 75, y: 50, color: '#9ed68c', size: 6 },
+    { x: 82, y: 60, color: '#f3a478', size: 7 },
     { x: 45, y: 80, color: '#f3c46e', size: 5 },
   ];
 
   return (
-    <div className="w-full h-36 bg-[#13151a] rounded-2xl p-3 border border-[#20242e] relative overflow-hidden flex flex-col justify-between">
-      <div className="text-[10px] text-[#677080] font-mono">
-        2D sentence vectors • PCA projection
+    <div className="w-full max-w-full h-36 bg-[#13151a] rounded-2xl p-3 border border-[#20242e] relative overflow-hidden flex flex-col justify-between">
+      <div className="text-[10px] text-[#677080] font-mono truncate">
+        2D sentence vectors • PCA
       </div>
-      <div className="relative flex-1 w-full my-1">
+      <div className="relative flex-1 w-full my-1 overflow-hidden">
         {dots.map((d, i) => (
           <div
             key={i}
@@ -77,14 +77,14 @@ export const EmbeddingsScatterChart = () => {
               width: `${d.size}px`,
               height: `${d.size}px`,
               backgroundColor: d.color,
-              boxShadow: `0 0 8px ${d.color}66`
+              boxShadow: `0 0 6px ${d.color}66`
             }}
           />
         ))}
       </div>
       <div className="text-[9px] text-[#555d6e] flex justify-between font-mono">
-        <span>Dim 1 (semantic)</span>
-        <span>Dim 2 (syntactic)</span>
+        <span>Dim 1 (sem)</span>
+        <span>Dim 2 (syn)</span>
       </div>
     </div>
   );
@@ -93,14 +93,14 @@ export const EmbeddingsScatterChart = () => {
 // 3. Attention Arc Visualization matching the exact reference screenshot
 export const AttentionArcChart = () => {
   return (
-    <div className="w-full h-36 bg-[#13151a] rounded-2xl p-3 border border-[#20242e] flex flex-col justify-between">
-      <div className="text-[10px] text-[#677080] font-mono">
-        Q*K^T / √d_k • Softmax Attention Arcs
+    <div className="w-full max-w-full h-36 bg-[#13151a] rounded-2xl p-3 border border-[#20242e] flex flex-col justify-between overflow-hidden">
+      <div className="text-[10px] text-[#677080] font-mono truncate">
+        Q*K^T / √d_k • Softmax Arcs
       </div>
       
       {/* SVG Arcs */}
-      <div className="w-full h-16 flex items-center justify-center">
-        <svg viewBox="0 0 200 60" className="w-full h-full stroke-current">
+      <div className="w-full h-16 flex items-center justify-center overflow-hidden">
+        <svg viewBox="0 0 200 60" className="w-full h-full max-w-full stroke-current" preserveAspectRatio="xMidYMid meet">
           <path
             d="M 25 55 A 40 40 0 0 1 175 55"
             fill="none"
@@ -132,7 +132,7 @@ export const AttentionArcChart = () => {
         </svg>
       </div>
 
-      <div className="flex justify-between text-[9px] text-[#5a6273] font-mono px-2">
+      <div className="flex justify-between text-[9px] text-[#5a6273] font-mono px-1 truncate">
         <span>The</span>
         <span>model</span>
         <span>did</span>

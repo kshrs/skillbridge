@@ -16,6 +16,7 @@ export const ProfileView = ({ user, skillGap, onUpdateProfile, onAddSkill, onRem
   const [headline, setHeadline] = useState(user?.headline || '');
   const [bio, setBio] = useState(user?.bio || '');
   const [targetRole, setTargetRole] = useState(user?.targetRole || 'Full Stack Developer');
+  const [geminiApiKey, setGeminiApiKey] = useState(user?.geminiApiKey || '');
   
   // New skill input
   const [newSkillName, setNewSkillName] = useState('');
@@ -32,10 +33,11 @@ export const ProfileView = ({ user, skillGap, onUpdateProfile, onAddSkill, onRem
       name,
       headline,
       bio,
-      targetRole
+      targetRole,
+      geminiApiKey: geminiApiKey.trim()
     });
     if (res?.success) {
-      setMsg('Profile details updated!');
+      setMsg('Profile details & Gemini API Key updated!');
     } else {
       setMsg('Update failed.');
     }
@@ -109,6 +111,28 @@ export const ProfileView = ({ user, skillGap, onUpdateProfile, onAddSkill, onRem
                 onChange={(e) => setBio(e.target.value)}
                 rows={3}
                 className="w-full bg-[#111317] border border-[#232833] rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-[#d97746]"
+              />
+            </div>
+
+            {/* Google Gemini API Key Input */}
+            <div className="p-4 rounded-2xl bg-[#14171e] border border-[#232936] space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Sparkles size={14} className="text-[#d97746]" /> Google Gemini API Key (Flash / Flash-Lite)
+                </label>
+                <span className="text-[10px] text-[#9ed68c] font-mono">
+                  {geminiApiKey ? 'Configured' : 'Optional (Free Tier)'}
+                </span>
+              </div>
+              <p className="text-[11px] text-[#7d8697]">
+                Used for automated AI evaluation of your conceptual answers in the 92-question Interview Arena.
+              </p>
+              <input
+                type="password"
+                value={geminiApiKey}
+                onChange={(e) => setGeminiApiKey(e.target.value)}
+                placeholder="AIzaSy..."
+                className="w-full bg-[#0f1115] border border-[#252b36] rounded-xl p-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#d97746]"
               />
             </div>
 

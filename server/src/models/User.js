@@ -46,7 +46,8 @@ const UserSchema = new mongoose.Schema({
     passed: Boolean,
     date: { type: Date, default: Date.now }
   }],
-  matchedMentorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Mentor', default: null }
+  matchedMentorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Mentor', default: null },
+  geminiApiKey: { type: String, default: '' }
 }, { timestamps: true });
 
 UserSchema.pre('save', async function (next) {

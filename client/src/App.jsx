@@ -63,6 +63,7 @@ export function App() {
               user={user} 
               skillGap={skillGap} 
               setActiveTab={setActiveTab} 
+              token={token}
             />
           )}
 

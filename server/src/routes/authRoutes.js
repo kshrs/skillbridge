@@ -106,7 +106,7 @@ router.get('/me', protect, async (req, res) => {
 // Update profile & skills (CRUD: Update)
 router.put('/profile', protect, async (req, res) => {
   try {
-    const { name, headline, bio, targetRole, skills, education, resume } = req.body;
+    const { name, headline, bio, targetRole, skills, education, resume, geminiApiKey } = req.body;
     const user = await User.findById(req.user._id);
 
     if (name) user.name = name;
@@ -116,6 +116,7 @@ router.put('/profile', protect, async (req, res) => {
     if (skills) user.skills = skills;
     if (education) user.education = education;
     if (resume) user.resume = { ...user.resume, ...resume };
+    if (geminiApiKey !== undefined) user.geminiApiKey = geminiApiKey;
 
     await user.save();
     const skillGap = analyzeSkillGap(user.skills, user.targetRole);
