@@ -17,7 +17,7 @@ import {
 export const Sidebar = ({ activeTab, setActiveTab, userRole }) => {
   const navItems = [
     { id: 'dashboard', label: 'Home', icon: Home },
-    { id: 'curriculum', label: 'Curriculum & Courses', icon: Compass },
+    { id: 'curriculum', label: 'Stanford CS224N Course', icon: Compass },
     { id: 'jobs', label: 'Jobs & Internships', icon: Briefcase },
     { id: 'skill-assessment', label: 'Assessments', icon: Award },
     { id: 'resume', label: 'AI Resume Studio', icon: FileText },

@@ -3,7 +3,7 @@ import { useAuth } from './context/AuthContext';
 import { useTheme } from './context/ThemeContext';
 import { Sidebar, Header } from './components/Navigation';
 import { DashboardView } from './components/DashboardView';
-import { CurriculumView } from './components/CurriculumView';
+import { CS224NCourseView } from './components/CS224NCourseView';
 import { JobsView } from './components/JobsView';
 import { AssessmentView } from './components/AssessmentView';
 import { ResumeStudio } from './components/ResumeStudio';
@@ -68,10 +68,8 @@ export function App() {
           )}
 
           {activeTab === 'curriculum' && (
-            <CurriculumView 
-              token={token} 
-              skillGap={skillGap} 
-              user={user} 
+            <CS224NCourseView 
+              setActiveTab={setActiveTab} 
             />
           )}
 
