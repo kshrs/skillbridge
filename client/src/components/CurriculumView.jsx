@@ -7,15 +7,20 @@ import {
   Star, 
   ExternalLink, 
   CheckCircle2, 
-  ArrowRight,
-  Filter
+  ArrowRight, 
+  Play, 
+  Filter,
+  Youtube
 } from 'lucide-react';
 import { TokenBarChart, EmbeddingsScatterChart, AttentionArcChart } from './DataVisualizations';
+import { VideoModal } from './VideoModal';
+import { CONCEPT_VIDEOS } from '../data/conceptVideos';
 
 export const CurriculumView = ({ token, skillGap, user }) => {
   const [courses, setCourses] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
   const [filterSkill, setFilterSkill] = useState('All');
+  const [activeVideo, setActiveVideo] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -57,6 +62,11 @@ export const CurriculumView = ({ token, skillGap, user }) => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Video Modal Player */}
+      {activeVideo && (
+        <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />
+      )}
+
       {/* Title */}
       <div>
         <h2 className="text-2xl font-bold text-white tracking-tight">Curriculum & Course Recommendations</h2>
@@ -120,50 +130,89 @@ export const CurriculumView = ({ token, skillGap, user }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* Track 1: Tokenization */}
-          <div className="app-card p-5 space-y-4 hover:border-white/20 transition-all">
-            <TokenBarChart compact />
-            <div className="space-y-1">
-              <span className="text-[10px] font-mono text-[#d97746] uppercase">Module 01 • Topic 1</span>
-              <h4 className="text-base font-bold text-white">Tokenization Pipelines</h4>
-              <p className="text-xs text-[#8c96a7] leading-relaxed">
-                Understand how BPE tokenizers decompose raw character strings into token IDs, vocabulary tables, and tensor indices.
-              </p>
+          <div className="app-card p-5 space-y-4 hover:border-white/20 transition-all flex flex-col justify-between">
+            <div className="space-y-4">
+              <TokenBarChart compact />
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-[#d97746] uppercase">Module 01 • Topic 1</span>
+                  <span className="text-[10px] text-[#f3a478] font-mono">Stanford Online</span>
+                </div>
+                <h4 className="text-base font-bold text-white">Tokenization Pipelines</h4>
+                <p className="text-xs text-[#8c96a7] leading-relaxed">
+                  Understand how BPE tokenizers decompose raw character strings into token IDs, vocabulary tables, and tensor indices.
+                </p>
+              </div>
             </div>
-            <div className="flex items-center justify-between pt-3 border-t border-white/5 text-xs text-[#70798a]">
-              <span>18 min • Beginner</span>
-              <span className="text-[#9ed68c] font-mono font-bold">1 / 8 Completed</span>
+            <div className="pt-3 border-t border-white/5 space-y-2">
+              <div className="flex items-center justify-between text-xs text-[#70798a]">
+                <span>18 min • Beginner</span>
+                <span className="text-[#9ed68c] font-mono font-bold">1 / 8 Completed</span>
+              </div>
+              <button
+                onClick={() => setActiveVideo(CONCEPT_VIDEOS.tokenization)}
+                className="w-full py-2 rounded-xl bg-white text-black text-xs font-bold hover:bg-gray-200 transition-colors flex items-center justify-center gap-1.5 shadow"
+              >
+                <Play size={12} fill="currentColor" /> Continue: Stanford Lecture
+              </button>
             </div>
           </div>
 
           {/* Track 2: Embeddings */}
-          <div className="app-card p-5 space-y-4 hover:border-white/20 transition-all">
-            <EmbeddingsScatterChart />
-            <div className="space-y-1">
-              <span className="text-[10px] font-mono text-[#d97746] uppercase">Module 01 • Topic 2</span>
-              <h4 className="text-base font-bold text-white">Embeddings & Vector Spaces</h4>
-              <p className="text-xs text-[#8c96a7] leading-relaxed">
-                Project dense semantic dimensions, cosine distance matrices, and vector stores for similarity retrieval.
-              </p>
+          <div className="app-card p-5 space-y-4 hover:border-white/20 transition-all flex flex-col justify-between">
+            <div className="space-y-4">
+              <EmbeddingsScatterChart />
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-[#d97746] uppercase">Module 01 • Topic 2</span>
+                  <span className="text-[10px] text-[#f3a478] font-mono">Stanford CS224N</span>
+                </div>
+                <h4 className="text-base font-bold text-white">Embeddings & Vector Spaces</h4>
+                <p className="text-xs text-[#8c96a7] leading-relaxed">
+                  Project dense semantic dimensions, cosine distance matrices, and vector stores for similarity retrieval.
+                </p>
+              </div>
             </div>
-            <div className="flex items-center justify-between pt-3 border-t border-white/5 text-xs text-[#70798a]">
-              <span>20 min • Beginner</span>
-              <span className="text-[#656e7f] font-mono">0 / 8 Completed</span>
+            <div className="pt-3 border-t border-white/5 space-y-2">
+              <div className="flex items-center justify-between text-xs text-[#70798a]">
+                <span>20 min • Beginner</span>
+                <span className="text-[#656e7f] font-mono">0 / 8 Completed</span>
+              </div>
+              <button
+                onClick={() => setActiveVideo(CONCEPT_VIDEOS.embeddings)}
+                className="w-full py-2 rounded-xl bg-white text-black text-xs font-bold hover:bg-gray-200 transition-colors flex items-center justify-center gap-1.5 shadow"
+              >
+                <Play size={12} fill="currentColor" /> Continue: Word Vectors (Stanford)
+              </button>
             </div>
           </div>
 
           {/* Track 3: Attention Mechanism */}
-          <div className="app-card p-5 space-y-4 hover:border-white/20 transition-all">
-            <AttentionArcChart />
-            <div className="space-y-1">
-              <span className="text-[10px] font-mono text-[#d97746] uppercase">Module 01 • Topic 3</span>
-              <h4 className="text-base font-bold text-white">Self-Attention Weights</h4>
-              <p className="text-xs text-[#8c96a7] leading-relaxed">
-                Inspect scaled dot-product attention queries, keys, values, and multi-head context integration.
-              </p>
+          <div className="app-card p-5 space-y-4 hover:border-white/20 transition-all flex flex-col justify-between">
+            <div className="space-y-4">
+              <AttentionArcChart />
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-[#d97746] uppercase">Module 01 • Topic 3</span>
+                  <span className="text-[10px] text-[#f3c46e] font-mono">MIT OpenCourseWare</span>
+                </div>
+                <h4 className="text-base font-bold text-white">Self-Attention Weights</h4>
+                <p className="text-xs text-[#8c96a7] leading-relaxed">
+                  Inspect scaled dot-product attention queries, keys, values, and multi-head context integration.
+                </p>
+              </div>
             </div>
-            <div className="flex items-center justify-between pt-3 border-t border-white/5 text-xs text-[#70798a]">
-              <span>22 min • Beginner</span>
-              <span className="text-[#656e7f] font-mono">0 / 8 Completed</span>
+            <div className="pt-3 border-t border-white/5 space-y-2">
+              <div className="flex items-center justify-between text-xs text-[#70798a]">
+                <span>22 min • Beginner</span>
+                <span className="text-[#656e7f] font-mono">0 / 8 Completed</span>
+              </div>
+              <button
+                onClick={() => setActiveVideo(CONCEPT_VIDEOS.attention)}
+                className="w-full py-2 rounded-xl bg-white text-black text-xs font-bold hover:bg-gray-200 transition-colors flex items-center justify-center gap-1.5 shadow"
+              >
+                <Play size={12} fill="currentColor" /> Continue: MIT 6.S191 Lecture
+              </button>
             </div>
           </div>
         </div>

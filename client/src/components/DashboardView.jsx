@@ -10,12 +10,16 @@ import {
   Play, 
   BookOpen, 
   ChevronRight,
-  ExternalLink
+  ExternalLink,
+  Youtube
 } from 'lucide-react';
 import { TokenBarChart, EmbeddingsScatterChart, AttentionArcChart } from './DataVisualizations';
+import { VideoModal } from './VideoModal';
+import { CONCEPT_VIDEOS } from '../data/conceptVideos';
 
 export const DashboardView = ({ user, skillGap, setActiveTab, onQuickApply }) => {
   const [selectedDay, setSelectedDay] = useState(22);
+  const [activeVideo, setActiveVideo] = useState(null);
   const calendarDays = [
     { day: 'M', date: 19 },
     { day: 'T', date: 20 },
@@ -28,6 +32,11 @@ export const DashboardView = ({ user, skillGap, setActiveTab, onQuickApply }) =>
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Video Lecture Modal */}
+      {activeVideo && (
+        <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />
+      )}
+
       {/* Top Main Grid matching the exact layout of the attached UI */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
@@ -82,7 +91,7 @@ export const DashboardView = ({ user, skillGap, setActiveTab, onQuickApply }) =>
                 {/* Actions */}
                 <div className="flex items-center gap-3 pt-1">
                   <button 
-                    onClick={() => setActiveTab('skill-assessment')}
+                    onClick={() => setActiveVideo(CONCEPT_VIDEOS.tokenization)}
                     className="px-5 py-2.5 rounded-full bg-white text-[#121417] text-xs font-bold hover:bg-gray-200 transition-colors flex items-center gap-1.5 shadow-sm"
                   >
                     <Play size={12} fill="currentColor" /> Continue
@@ -122,16 +131,26 @@ export const DashboardView = ({ user, skillGap, setActiveTab, onQuickApply }) =>
 
             {/* 3 cards matching the reference image: Tokenization, Embeddings, Attention */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-              {/* Card 1 */}
+              {/* Card 1: Tokenization */}
               <div 
-                onClick={() => setActiveTab('skill-assessment')}
-                className="app-card-sub p-4 space-y-3 cursor-pointer hover:border-white/20 transition-all group"
+                onClick={() => setActiveVideo(CONCEPT_VIDEOS.tokenization)}
+                className="app-card-sub p-4 space-y-3 cursor-pointer hover:border-white/20 transition-all group relative"
               >
-                <TokenBarChart compact />
+                <div className="relative">
+                  <TokenBarChart compact />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
+                    <span className="px-3 py-1.5 rounded-full bg-white text-black text-xs font-bold flex items-center gap-1.5 shadow-lg">
+                      <Play size={11} fill="currentColor" /> Watch Stanford Lecture
+                    </span>
+                  </div>
+                </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-white group-hover:text-[#d97746] transition-colors">
-                    Tokenization
-                  </h4>
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-white group-hover:text-[#d97746] transition-colors">
+                      Tokenization
+                    </h4>
+                    <span className="text-[10px] text-[#f3a478] font-mono">Stanford</span>
+                  </div>
                   <div className="flex items-center justify-between text-[11px] text-[#697283] mt-1">
                     <span>18 min • Beginner</span>
                     <span className="font-mono text-[#9ed68c]">1 / 8</span>
@@ -142,16 +161,26 @@ export const DashboardView = ({ user, skillGap, setActiveTab, onQuickApply }) =>
                 </div>
               </div>
 
-              {/* Card 2 */}
+              {/* Card 2: Embeddings */}
               <div 
-                onClick={() => setActiveTab('skill-assessment')}
-                className="app-card-sub p-4 space-y-3 cursor-pointer hover:border-white/20 transition-all group"
+                onClick={() => setActiveVideo(CONCEPT_VIDEOS.embeddings)}
+                className="app-card-sub p-4 space-y-3 cursor-pointer hover:border-white/20 transition-all group relative"
               >
-                <EmbeddingsScatterChart />
+                <div className="relative">
+                  <EmbeddingsScatterChart />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
+                    <span className="px-3 py-1.5 rounded-full bg-white text-black text-xs font-bold flex items-center gap-1.5 shadow-lg">
+                      <Play size={11} fill="currentColor" /> Watch Stanford CS224N
+                    </span>
+                  </div>
+                </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-white group-hover:text-[#d97746] transition-colors">
-                    Embeddings
-                  </h4>
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-white group-hover:text-[#d97746] transition-colors">
+                      Embeddings
+                    </h4>
+                    <span className="text-[10px] text-[#f3a478] font-mono">Stanford</span>
+                  </div>
                   <div className="flex items-center justify-between text-[11px] text-[#697283] mt-1">
                     <span>20 min • Beginner</span>
                     <span className="font-mono text-[#626a7a]">0 / 8</span>
@@ -162,16 +191,26 @@ export const DashboardView = ({ user, skillGap, setActiveTab, onQuickApply }) =>
                 </div>
               </div>
 
-              {/* Card 3 */}
+              {/* Card 3: Attention */}
               <div 
-                onClick={() => setActiveTab('skill-assessment')}
-                className="app-card-sub p-4 space-y-3 cursor-pointer hover:border-white/20 transition-all group"
+                onClick={() => setActiveVideo(CONCEPT_VIDEOS.attention)}
+                className="app-card-sub p-4 space-y-3 cursor-pointer hover:border-white/20 transition-all group relative"
               >
-                <AttentionArcChart />
+                <div className="relative">
+                  <AttentionArcChart />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
+                    <span className="px-3 py-1.5 rounded-full bg-white text-black text-xs font-bold flex items-center gap-1.5 shadow-lg">
+                      <Play size={11} fill="currentColor" /> Watch MIT 6.S191
+                    </span>
+                  </div>
+                </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-white group-hover:text-[#d97746] transition-colors">
-                    Attention
-                  </h4>
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-white group-hover:text-[#d97746] transition-colors">
+                      Attention
+                    </h4>
+                    <span className="text-[10px] text-[#f3c46e] font-mono">MIT OCW</span>
+                  </div>
                   <div className="flex items-center justify-between text-[11px] text-[#697283] mt-1">
                     <span>22 min • Beginner</span>
                     <span className="font-mono text-[#626a7a]">0 / 8</span>
