@@ -9,11 +9,23 @@ import { LearnCanvas } from '@/components/LearnCanvas';
 import { AssessmentsCanvas } from '@/components/AssessmentsCanvas';
 import { PlacementsCanvas } from '@/components/PlacementsCanvas';
 import { MentorsCanvas } from '@/components/MentorsCanvas';
+import { StaffPortalCanvas } from '@/components/StaffPortalCanvas';
 
 function AppContent() {
   const { user, token, refreshProfile } = useAuth();
+  const isStaff = user && ['admin', 'faculty', 'mentor'].includes(user.role);
   const [activeTab, setActiveTab] = useState('portfolio');
   const [enrollments, setEnrollments] = useState([]);
+
+  // Auto-switch default tab if staff logs in
+  useEffect(() => {
+    if (isStaff && ['portfolio', 'learn', 'mentors'].includes(activeTab)) {
+      setActiveTab('staff-students');
+    } else if (!isStaff && activeTab.startsWith('staff-')) {
+      setActiveTab('portfolio');
+    }
+  }, [isStaff]);
+
 
   useEffect(() => {
     if (token) {
@@ -83,7 +95,58 @@ function AppContent() {
             token={token} 
           />
         )}
+
+        {/* Staff/Admin Specialized Workstation Views */}
+        {isStaff && (
+          <>
+            {activeTab === 'staff-students' && (
+              <StaffPortalCanvas 
+                user={user} 
+                token={token} 
+                activeSubTab="students"
+                onActivityUpdated={handleActivityUpdated} 
+              />
+            )}
+
+            {activeTab === 'staff-assessments' && (
+              <StaffPortalCanvas 
+                user={user} 
+                token={token} 
+                activeSubTab="assessments"
+                onActivityUpdated={handleActivityUpdated} 
+              />
+            )}
+
+            {activeTab === 'staff-placements' && (
+              <StaffPortalCanvas 
+                user={user} 
+                token={token} 
+                activeSubTab="placements"
+                onActivityUpdated={handleActivityUpdated} 
+              />
+            )}
+
+            {activeTab === 'staff-tickets' && (
+              <StaffPortalCanvas 
+                user={user} 
+                token={token} 
+                activeSubTab="tickets"
+                onActivityUpdated={handleActivityUpdated} 
+              />
+            )}
+
+            {activeTab === 'staff-doubts' && (
+              <StaffPortalCanvas 
+                user={user} 
+                token={token} 
+                activeSubTab="doubts"
+                onActivityUpdated={handleActivityUpdated} 
+              />
+            )}
+          </>
+        )}
       </main>
+
     </div>
   );
 }

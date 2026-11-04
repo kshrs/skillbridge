@@ -57,3 +57,71 @@ export async function GET(req) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+export async function POST(req) {
+  try {
+    await connectDB();
+    const decoded = verifyToken(req);
+    if (!decoded) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
+
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser || !['admin', 'faculty', 'mentor'].includes(currentUser.role)) {
+      return NextResponse.json({ success: false, message: 'Forbidden. Staff/Faculty role required.' }, { status: 403 });
+    }
+
+    const body = await req.json();
+    const {
+      companyName,
+      roleTitle,
+      driveType = 'On-Campus',
+      status = 'Registration Open',
+      ctcPackage,
+      location = 'Bangalore / Hybrid',
+      description = '',
+      eligibleDepartments = ['Information Technology', 'Computer Science'],
+      eligibleGraduationYears = [2026, 2027],
+      minCgpa = 7.0,
+      requiredSkills = [],
+      preferredSkills = [],
+      driveDate,
+      registrationDeadline,
+      selectionProcess = ['Resume Screening', 'Online Technical Assessment', 'System Design Interview', 'HR Round']
+    } = body;
+
+    if (!companyName || !roleTitle || !ctcPackage || !driveDate || !registrationDeadline) {
+      return NextResponse.json({
+        success: false,
+        message: 'Missing required fields: companyName, roleTitle, ctcPackage, driveDate, registrationDeadline'
+      }, { status: 400 });
+    }
+
+    const newDrive = await Placement.create({
+      companyName,
+      roleTitle,
+      driveType,
+      status,
+      ctcPackage,
+      location,
+      description,
+      eligibleDepartments,
+      eligibleGraduationYears,
+      minCgpa: Number(minCgpa) || 7.0,
+      requiredSkills: Array.isArray(requiredSkills) ? requiredSkills : requiredSkills.split(',').map(s => s.trim()).filter(Boolean),
+      preferredSkills: Array.isArray(preferredSkills) ? preferredSkills : preferredSkills.split(',').map(s => s.trim()).filter(Boolean),
+      driveDate: new Date(driveDate),
+      registrationDeadline: new Date(registrationDeadline),
+      selectionProcess: Array.isArray(selectionProcess) ? selectionProcess : selectionProcess.split(',').map(s => s.trim()).filter(Boolean)
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Placement drive for ${companyName} published successfully`,
+      drive: newDrive
+    }, { status: 201 });
+  } catch (err) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
