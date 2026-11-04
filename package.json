@@ -1,11 +1,26 @@
 {
-  "name": "skillbridge",
-  "version": "1.0.0",
-  "description": "SkillBridge - Youth Employability Platform",
+  "name": "skill_bridge",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "dev:server": "cd server && npm run dev",
-    "dev:client": "cd client && npm run dev",
-    "seed": "cd server && npm run seed",
-    "build": "cd client && npm run build"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^1.68.0",
+    "mongoose": "^9.11.4",
+    "next": "16.4.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.5",
+    "tailwindcss": "^4"
   }
 }
