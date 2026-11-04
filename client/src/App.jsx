@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from './context/AuthContext';
 import { useTheme } from './context/ThemeContext';
 import { Sidebar, Header } from './components/Navigation';
-import { DashboardView } from './components/DashboardView';
-import { CS224NCourseView } from './components/CS224NCourseView';
-import { JobsView } from './components/JobsView';
+import { HomePortfolioView } from './components/HomePortfolioView';
+import { LearnView } from './components/LearnView';
+import { PlacementsView } from './components/PlacementsView';
 import { AssessmentView } from './components/AssessmentView';
+import { MentorsChatView } from './components/MentorsChatView';
 import { ResumeStudio } from './components/ResumeStudio';
-import { MentorsView } from './components/MentorsView';
 import { ProfileView } from './components/ProfileView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { AuthModal } from './components/AuthModal';
@@ -16,7 +16,6 @@ export function App() {
   const { 
     token, 
     user, 
-    skillGap, 
     login, 
     register, 
     logout, 
@@ -28,11 +27,38 @@ export function App() {
 
   const { theme, toggleTheme } = useTheme();
 
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('home'); // 'home', 'learn', 'assessments', 'placements', 'mentors', 'resume', 'profile', 'admin'
   const [searchQuery, setSearchQuery] = useState('');
+  const [enrollments, setEnrollments] = useState([]);
+
+  // Fetch student enrollments
+  useEffect(() => {
+    if (token) {
+      fetchMyEnrollments();
+    }
+  }, [token]);
+
+  const fetchMyEnrollments = async () => {
+    try {
+      const res = await fetch('/api/enrollment/my', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setEnrollments(data);
+      }
+    } catch (err) {
+      console.error('Error fetching enrollments:', err);
+    }
+  };
+
+  const handleActivityLogged = () => {
+    fetchProfile();
+    fetchMyEnrollments();
+  };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] flex font-sans">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] flex font-sans transition-colors duration-200">
       {/* Auth Modal if unauthenticated */}
       {!token && (
         <AuthModal onLogin={login} onRegister={register} />
@@ -58,32 +84,42 @@ export function App() {
         />
 
         <main className="flex-1 p-6 md:p-8 overflow-y-auto">
-          {activeTab === 'dashboard' && (
-            <DashboardView 
+          {activeTab === 'home' && (
+            <HomePortfolioView 
               user={user} 
-              skillGap={skillGap} 
               setActiveTab={setActiveTab} 
+              enrollments={enrollments}
+            />
+          )}
+
+          {activeTab === 'learn' && (
+            <LearnView 
+              user={user} 
               token={token}
+              onActivityLogged={handleActivityLogged}
             />
           )}
 
-          {activeTab === 'curriculum' && (
-            <CS224NCourseView 
-              setActiveTab={setActiveTab} 
+          {activeTab === 'assessments' && (
+            <AssessmentView 
+              user={user}
+              token={token} 
+              onSkillVerified={handleActivityLogged}
             />
           )}
 
-          {activeTab === 'jobs' && (
-            <JobsView 
+          {activeTab === 'placements' && (
+            <PlacementsView 
               user={user} 
               token={token} 
+              onActivityLogged={handleActivityLogged}
             />
           )}
 
-          {activeTab === 'skill-assessment' && (
-            <AssessmentView 
+          {activeTab === 'mentors' && (
+            <MentorsChatView 
+              user={user} 
               token={token} 
-              onSkillVerified={fetchProfile} 
             />
           )}
 
@@ -91,28 +127,19 @@ export function App() {
             <ResumeStudio 
               user={user} 
               token={token} 
-              onUpdateResume={fetchProfile} 
-            />
-          )}
-
-          {activeTab === 'mentors' && (
-            <MentorsView 
-              token={token} 
-              user={user} 
             />
           )}
 
           {activeTab === 'profile' && (
             <ProfileView 
               user={user} 
-              skillGap={skillGap} 
               onUpdateProfile={updateProfile} 
               onAddSkill={addSkill} 
               onRemoveSkill={removeSkill} 
             />
           )}
 
-          {activeTab === 'admin' && user?.role === 'admin' && (
+          {activeTab === 'admin' && (
             <AdminDashboard 
               token={token} 
             />
