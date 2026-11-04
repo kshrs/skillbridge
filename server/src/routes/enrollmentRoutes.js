@@ -205,12 +205,12 @@ router.post('/:courseId/progress', protect, async (req, res) => {
   }
 });
 
-// POST /api/enrollment/:courseId/notes - Add or update module notes
+// POST /api/enrollment/:courseId/notes - Add or update module notes and attached files
 router.post('/:courseId/notes', protect, async (req, res) => {
   try {
-    const { moduleId, moduleTitle, content } = req.body;
-    if (!content) {
-      return res.status(400).json({ message: 'Note content is required' });
+    const { moduleId, moduleTitle, content, attachedFiles } = req.body;
+    if (!content && (!attachedFiles || attachedFiles.length === 0)) {
+      return res.status(400).json({ message: 'Note content or file attachment is required' });
     }
 
     let enrollment = await Enrollment.findOne({
@@ -227,14 +227,21 @@ router.post('/:courseId/notes', protect, async (req, res) => {
 
     const existingIndex = enrollment.notes.findIndex(n => n.moduleId === moduleId);
     if (existingIndex >= 0) {
-      enrollment.notes[existingIndex].content = content;
+      enrollment.notes[existingIndex].content = content || enrollment.notes[existingIndex].content;
       enrollment.notes[existingIndex].moduleTitle = moduleTitle || enrollment.notes[existingIndex].moduleTitle;
+      if (attachedFiles && Array.isArray(attachedFiles)) {
+        enrollment.notes[existingIndex].attachedFiles = [
+          ...(enrollment.notes[existingIndex].attachedFiles || []),
+          ...attachedFiles
+        ];
+      }
       enrollment.notes[existingIndex].updatedAt = new Date();
     } else {
       enrollment.notes.push({
         moduleId: moduleId || '',
         moduleTitle: moduleTitle || 'Course General Notes',
-        content,
+        content: content || '',
+        attachedFiles: attachedFiles || [],
         updatedAt: new Date()
       });
     }

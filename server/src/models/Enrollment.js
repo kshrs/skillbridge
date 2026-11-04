@@ -4,8 +4,8 @@ const EnrollmentSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true, index: true },
   status: { type: String, enum: ['in-progress', 'completed', 'dropped'], default: 'in-progress' },
-  progress: { type: Number, default: 0, min: 0, max: 100 }, // Overall course percentage
-  completedLectures: [{ type: String }], // lecture IDs completed
+  progress: { type: Number, default: 0, min: 0, max: 100 },
+  completedLectures: [{ type: String }],
   lectureProgress: [{
     lectureId: { type: String, required: true },
     playedSeconds: { type: Number, default: 0 },
@@ -17,7 +17,14 @@ const EnrollmentSchema = new mongoose.Schema({
   notes: [{
     moduleId: { type: String, default: '' },
     moduleTitle: { type: String, default: '' },
-    content: { type: String, required: true },
+    content: { type: String, default: '' },
+    attachedFiles: [{
+      fileName: { type: String, required: true },
+      fileSize: { type: String, default: '' },
+      fileType: { type: String, default: '' },
+      fileData: { type: String, default: '' }, // base64 or URL
+      uploadedAt: { type: Date, default: Date.now }
+    }],
     updatedAt: { type: Date, default: Date.now }
   }],
   projectArtifacts: [{

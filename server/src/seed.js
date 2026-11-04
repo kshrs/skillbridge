@@ -222,6 +222,30 @@ export const COURSES_CATALOG = [
             summary: 'Kernel convolutions, stride, padding, and feature map dimensions.'
           }
         ]
+      },
+      {
+        moduleId: 'cs231n-m2',
+        title: 'Training Networks & Deep Recognition',
+        description: 'Residual connections (ResNet), Batch Normalization, Adam optimizer, and object detection.',
+        skillsLearned: ['ResNet', 'Object Detection', 'Batch Norm'],
+        lectures: [
+          {
+            lectureId: 'cs231n-l3',
+            title: 'Lecture 7: Training Neural Networks II',
+            youtubeVideoId: 'u6aEYuemt0M',
+            youtubeUrl: 'https://www.youtube.com/watch?v=u6aEYuemt0M',
+            durationSeconds: 4800,
+            summary: 'Weight initialization, learning rate annealing, and hyperparameter search.'
+          },
+          {
+            lectureId: 'cs231n-l4',
+            title: 'Lecture 9: Spatial Detection and Region Proposals',
+            youtubeVideoId: 'd14Q7f04N3o',
+            youtubeUrl: 'https://www.youtube.com/watch?v=d14Q7f04N3o',
+            durationSeconds: 5100,
+            summary: 'Faster R-CNN, anchor bounding boxes, and Feature Pyramid Networks.'
+          }
+        ]
       }
     ]
   },
@@ -252,6 +276,30 @@ export const COURSES_CATALOG = [
             youtubeUrl: 'https://www.youtube.com/watch?v=FgzM3zpZ55o',
             durationSeconds: 4320,
             summary: 'Exploration vs. exploitation, agent-environment loop, and reward hypotheses.'
+          },
+          {
+            lectureId: 'cs234-l2',
+            title: 'Lecture 2: Given an MDP, What Can We Do?',
+            youtubeVideoId: '9g32v7vzk24',
+            youtubeUrl: 'https://www.youtube.com/watch?v=9g32v7vzk24',
+            durationSeconds: 4500,
+            summary: 'Exact dynamic programming methods, contraction mapping theorem, and value convergence.'
+          }
+        ]
+      },
+      {
+        moduleId: 'cs234-m2',
+        title: 'Model-Free Control & Deep Q-Learning',
+        description: 'Temporal difference learning, SARSA, Q-learning, replay buffers, and target networks.',
+        skillsLearned: ['Q-Learning', 'DQN', 'Policy Gradients'],
+        lectures: [
+          {
+            lectureId: 'cs234-l3',
+            title: 'Lecture 4: Model-Free Control & Temporal Difference',
+            youtubeVideoId: '_n8d5GZ4t1w',
+            youtubeUrl: 'https://www.youtube.com/watch?v=_n8d5GZ4t1w',
+            durationSeconds: 4620,
+            summary: 'TD(0), on-policy vs off-policy algorithms, and epsilon-greedy exploration bounds.'
           }
         ]
       }
@@ -274,7 +322,7 @@ export const COURSES_CATALOG = [
       {
         moduleId: 'cs25-m1',
         title: 'Modern Transformer Breakthroughs',
-        description: 'Architectural innovations, flash attention, and mixture of experts (MoE).',
+        description: 'Architectural innovations, self-attention scalability, and mixture of experts (MoE).',
         skillsLearned: ['FlashAttention', 'Mixture of Experts'],
         lectures: [
           {
@@ -284,13 +332,35 @@ export const COURSES_CATALOG = [
             youtubeUrl: 'https://www.youtube.com/watch?v=XfpMkf4rD6E',
             durationSeconds: 4500,
             summary: 'Dissecting self-attention mechanics and cross-domain scalability.'
+          },
+          {
+            lectureId: 'cs25-l2',
+            title: 'CS25 Lecture 2: Vision Transformers (ViT) & Multimodal AI',
+            youtubeVideoId: 'g2brErS20U8',
+            youtubeUrl: 'https://www.youtube.com/watch?v=g2brErS20U8',
+            durationSeconds: 4800,
+            summary: 'Patch tokenization, linear projection, and cross-attention architectures.'
+          }
+        ]
+      },
+      {
+        moduleId: 'cs25-m2',
+        title: 'Scaling Laws & Code Generation Models',
+        description: 'Chinchilla scaling, inference optimization, speculative decoding, and code synthesis LLMs.',
+        skillsLearned: ['Scaling Laws', 'Inference Optimization'],
+        lectures: [
+          {
+            lectureId: 'cs25-l3',
+            title: 'CS25 Lecture 3: Transformers for Code and Logic',
+            youtubeVideoId: 'Zv3pC71_K2M',
+            youtubeUrl: 'https://www.youtube.com/watch?v=Zv3pC71_K2M',
+            durationSeconds: 4700,
+            summary: 'Abstract syntax tree parsing with transformer attention mechanisms.'
           }
         ]
       }
     ]
   },
-
-  // 2. MIT OpenCourseWare (OCW)
   {
     title: '6.006: Introduction to Algorithms',
     code: '6.006',
@@ -554,7 +624,7 @@ export const COURSES_CATALOG = [
     code: 'CS50x',
     university: 'Harvard University',
     instructor: 'Prof. David J. Malan',
-    description: 'The world-renowned introduction to the intellectual enterprises of computer science and the art of programming using C, Python, SQL, and Web.',
+    description: 'The world-renowned introduction to computer science and programming using C, Python, SQL, and Web.',
     category: 'Computer Science Core',
     difficulty: 'Beginner',
     durationHours: 50,
@@ -565,9 +635,9 @@ export const COURSES_CATALOG = [
     modules: [
       {
         moduleId: 'cs50-m1',
-        title: 'C Programming, Memory & Pointers',
-        description: 'Compiling, variables, arrays, pointer arithmetic, manual heap allocation with malloc and free.',
-        skillsLearned: ['C', 'Pointers', 'Memory Allocation'],
+        title: 'Computational Thinking & C Language',
+        description: 'Binary, ASCII, algorithms, conditional branching, loops, and compilation pipelines.',
+        skillsLearned: ['C', 'Compilation', 'Logic'],
         lectures: [
           {
             lectureId: 'cs50-l1',
@@ -575,15 +645,39 @@ export const COURSES_CATALOG = [
             youtubeVideoId: '4AopTj3vT0c',
             youtubeUrl: 'https://www.youtube.com/watch?v=4AopTj3vT0c',
             durationSeconds: 5200,
-            summary: 'Binary, ASCII, algorithms, and computational problem solving.'
+            summary: 'Binary, algorithms, pseudocode, and problem decomposition.'
           },
           {
             lectureId: 'cs50-l2',
+            title: 'CS50 2024 - Lecture 1: C Programming Language',
+            youtubeVideoId: 'F9-yqOOqbyE',
+            youtubeUrl: 'https://www.youtube.com/watch?v=F9-yqOOqbyE',
+            durationSeconds: 5100,
+            summary: 'Data types, format specifiers, operators, and functions in C.'
+          }
+        ]
+      },
+      {
+        moduleId: 'cs50-m2',
+        title: 'Memory, Pointers & Data Structures',
+        description: 'Pointer arithmetic, heap allocation, call stack, linked lists, hash tables, and trie trees.',
+        skillsLearned: ['Pointers', 'Dynamic Memory', 'Hash Tables'],
+        lectures: [
+          {
+            lectureId: 'cs50-l3',
             title: 'CS50 2024 - Lecture 4: Memory and Pointers',
             youtubeVideoId: 'F9-yqOOqbyE',
             youtubeUrl: 'https://www.youtube.com/watch?v=F9-yqOOqbyE',
             durationSeconds: 5400,
-            summary: 'Pointers, addresses, hexadecimal, heap vs stack, and segmentation faults.'
+            summary: 'Hexadecimal, memory layout, addresses, malloc, free, and valgrind.'
+          },
+          {
+            lectureId: 'cs50-l4',
+            title: 'CS50 2024 - Lecture 5: Data Structures in C',
+            youtubeVideoId: 'YoXxevCrbNw',
+            youtubeUrl: 'https://www.youtube.com/watch?v=YoXxevCrbNw',
+            durationSeconds: 5300,
+            summary: 'Custom structs, self-referential pointers, linked list traversal, and BST insertion.'
           }
         ]
       }
@@ -908,6 +1002,14 @@ export const COURSES_CATALOG = [
             youtubeUrl: 'https://www.youtube.com/watch?v=SqcY0GlETPk',
             durationSeconds: 3600,
             summary: 'Functional components, useState, immutable state updates, and rendering.'
+          },
+          {
+            lectureId: 'fso-l2',
+            title: 'Full Stack Open: Communicating with Server & REST',
+            youtubeVideoId: 's1Gtw_7j2b8',
+            youtubeUrl: 'https://www.youtube.com/watch?v=s1Gtw_7j2b8',
+            durationSeconds: 3700,
+            summary: 'Axios, useEffect hook lifecycle, asynchronous promises, and JSON-server.'
           }
         ]
       },
@@ -918,12 +1020,20 @@ export const COURSES_CATALOG = [
         skillsLearned: ['Node.js', 'Express', 'MongoDB', 'JWT'],
         lectures: [
           {
-            lectureId: 'fso-l2',
+            lectureId: 'fso-l3',
             title: 'Full Stack Open: Backend Express & MongoDB',
-            youtubeVideoId: 's1Gtw_7j2b8',
-            youtubeUrl: 'https://www.youtube.com/watch?v=s1Gtw_7j2b8',
+            youtubeVideoId: '8SF_h3xF3cE',
+            youtubeUrl: 'https://www.youtube.com/watch?v=8SF_h3xF3cE',
             durationSeconds: 3800,
             summary: 'Middleware pipelines, async/await error handlers, and schema design.'
+          },
+          {
+            lectureId: 'fso-l4',
+            title: 'Full Stack Open: User Administration & Token Auth',
+            youtubeVideoId: '26QPDBe-NB8',
+            youtubeUrl: 'https://www.youtube.com/watch?v=26QPDBe-NB8',
+            durationSeconds: 3900,
+            summary: 'Bcrypt hashing, JSON Web Tokens, Bearer headers, and route protection.'
           }
         ]
       }
@@ -1030,6 +1140,30 @@ export const COURSES_CATALOG = [
             summary: 'Buffer pool manager implementation, dirty frames, and page table locks.'
           }
         ]
+      },
+      {
+        moduleId: 'cmu-15445-m2',
+        title: 'Tree Indexes & Concurrency Control',
+        description: 'B+ Tree split algorithms, latch crabbing, and multi-version concurrency control.',
+        skillsLearned: ['B+ Trees', 'MVCC', 'Locking & Latches'],
+        lectures: [
+          {
+            lectureId: 'cmu-15445-l3',
+            title: 'Lecture 7: Tree Indexes & B+ Trees',
+            youtubeVideoId: '7UJ4CFRGd-U',
+            youtubeUrl: 'https://www.youtube.com/watch?v=7UJ4CFRGd-U',
+            durationSeconds: 4700,
+            summary: 'Node split algorithms, parent pointer propagation, and duplicate key handling.'
+          },
+          {
+            lectureId: 'cmu-15445-l4',
+            title: 'Lecture 16: Concurrency Control Theory & 2PL',
+            youtubeVideoId: 'Nx0lRdfU1_A',
+            youtubeUrl: 'https://www.youtube.com/watch?v=Nx0lRdfU1_A',
+            durationSeconds: 4800,
+            summary: 'Conflict serializability, view serializability, and rigorous two-phase locking.'
+          }
+        ]
       }
     ]
   }
@@ -1115,11 +1249,11 @@ const seed = async () => {
         role: 'faculty',
         headline: 'Professor & Chair of Computer Science & Intelligent Systems',
         bio: 'Senior researcher in Distributed Deep Learning, Transformer optimization, and Large Language Models. Former visiting scientist at Stanford AI Lab.',
-        skills: [{ name: 'Deep Learning', level: 'Expert', verified: true }, { name: 'Distributed Systems', level: 'Expert', verified: true }],
+        skills: [{ name: 'Deep Learning', level: 'Expert', verified: true }, { name: 'Distributed Systems', level: 'Expert', verified: true }, { name: 'PyTorch', level: 'Expert', verified: true }],
         staffProfile: {
           department: 'Information Technology',
           designation: 'Professor & Head of Department',
-          disciplines: ['Natural Language Processing', 'Distributed AI', 'Computer Architecture'],
+          disciplines: ['Natural Language Processing', 'Distributed AI', 'Computer Architecture', 'Transformer Optimization'],
           officeHours: 'Tue/Thu 2:00 PM - 5:00 PM',
           contactEmail: 'thorne@faculty.edu'
         }
@@ -1131,11 +1265,11 @@ const seed = async () => {
         role: 'faculty',
         headline: 'Associate Professor of Software Engineering & Systems',
         bio: 'Industry veteran with 12 years in distributed backend architectures, microservices, and database engine concurrency control.',
-        skills: [{ name: 'Database Systems', level: 'Expert', verified: true }, { name: 'Microservices', level: 'Expert', verified: true }],
+        skills: [{ name: 'Database Systems', level: 'Expert', verified: true }, { name: 'Microservices', level: 'Expert', verified: true }, { name: 'Go', level: 'Advanced', verified: true }],
         staffProfile: {
           department: 'Information Technology',
           designation: 'Associate Professor',
-          disciplines: ['Cloud Architecture', 'Database Internals', 'DevOps & SRE'],
+          disciplines: ['Cloud Architecture', 'Database Internals', 'DevOps & SRE', 'Distributed Systems'],
           officeHours: 'Mon/Wed 10:00 AM - 1:00 PM',
           contactEmail: 'elena@faculty.edu'
         }
@@ -1147,13 +1281,93 @@ const seed = async () => {
         role: 'admin',
         headline: 'Dean of Academic Careers & Placement Director',
         bio: 'Oversees campus placement drives, industry recruitment partnerships, and institutional skills alignment.',
-        skills: [{ name: 'Talent Acquisition', level: 'Expert', verified: true }],
+        skills: [{ name: 'Talent Acquisition', level: 'Expert', verified: true }, { name: 'Competitive Coding', level: 'Advanced', verified: true }],
         staffProfile: {
           department: 'Placement Cell',
           designation: 'Director of Placements & Training',
-          disciplines: ['Campus Recruitment', 'Employability Training', 'Competitive Coding'],
+          disciplines: ['Campus Recruitment', 'Employability Training', 'Competitive Coding', 'Career Strategy'],
           officeHours: 'Mon-Fri 3:00 PM - 6:00 PM',
           contactEmail: 'placements@faculty.edu'
+        }
+      },
+      {
+        name: 'Dr. Marcus Sterling',
+        email: 'sterling@faculty.edu',
+        password: 'password123',
+        role: 'faculty',
+        headline: 'Distinguished Professor of Algorithms & Theoretical Computer Science',
+        bio: 'Author of ACM reference papers on randomized approximation algorithms, graph partitioning, and streaming graph analytics.',
+        skills: [{ name: 'Algorithms', level: 'Expert', verified: true }, { name: 'Data Structures', level: 'Expert', verified: true }, { name: 'C++', level: 'Expert', verified: true }],
+        staffProfile: {
+          department: 'Computer Science',
+          designation: 'Distinguished Professor',
+          disciplines: ['Advanced Algorithms', 'Graph Theory', 'Computational Complexity', 'Competitive Programming'],
+          officeHours: 'Tue/Fri 11:00 AM - 2:00 PM',
+          contactEmail: 'sterling@faculty.edu'
+        }
+      },
+      {
+        name: 'Prof. Ananya Sen',
+        email: 'ananya@faculty.edu',
+        password: 'password123',
+        role: 'faculty',
+        headline: 'Lead Faculty - Web Platforms & Mobile Systems Engineering',
+        bio: 'Specialist in full-stack reactive applications, TypeScript compiler mechanics, WebAssembly, and modern browser rendering engines.',
+        skills: [{ name: 'React', level: 'Expert', verified: true }, { name: 'TypeScript', level: 'Expert', verified: true }, { name: 'Node.js', level: 'Expert', verified: true }],
+        staffProfile: {
+          department: 'Information Technology',
+          designation: 'Associate Professor & Full Stack Lab Director',
+          disciplines: ['Full Stack Web Architecture', 'React & Next.js Ecosystem', 'WebAssembly & High Performance Frontend', 'Mobile Engineering'],
+          officeHours: 'Mon/Thu 1:00 PM - 4:00 PM',
+          contactEmail: 'ananya@faculty.edu'
+        }
+      },
+      {
+        name: 'Dr. Devraj Mukherjee',
+        email: 'devraj@faculty.edu',
+        password: 'password123',
+        role: 'faculty',
+        headline: 'Director of Machine Intelligence & Computer Vision Lab',
+        bio: 'Pioneered multimodal generative diffusion models and 3D visual perception for autonomous systems. Advisor to leading AI research labs.',
+        skills: [{ name: 'Computer Vision', level: 'Expert', verified: true }, { name: 'Diffusion Models', level: 'Expert', verified: true }, { name: 'PyTorch', level: 'Expert', verified: true }],
+        staffProfile: {
+          department: 'Computer Science & AI',
+          designation: 'Professor & AI Lab Director',
+          disciplines: ['Computer Vision', 'Generative Diffusion Models', 'Medical Image Computing', 'Multimodal Deep Learning'],
+          officeHours: 'Wed/Fri 2:00 PM - 5:00 PM',
+          contactEmail: 'devraj@faculty.edu'
+        }
+      },
+      {
+        name: 'Prof. Sarah Jenkins',
+        email: 'jenkins@faculty.edu',
+        password: 'password123',
+        role: 'faculty',
+        headline: 'Senior Fellow - Systems Architecture & Cybersecurity',
+        bio: '20+ years investigating kernel vulnerability mitigations, cryptographic protocol verification, and hardware root of trust.',
+        skills: [{ name: 'Cybersecurity', level: 'Expert', verified: true }, { name: 'Operating Systems', level: 'Expert', verified: true }, { name: 'C', level: 'Expert', verified: true }],
+        staffProfile: {
+          department: 'Information Technology',
+          designation: 'Chair of Security & Networking',
+          disciplines: ['Cybersecurity & Cryptography', 'Operating Systems Internals', 'Network Architecture', 'Secure Software Engineering'],
+          officeHours: 'Tue/Thu 10:00 AM - 1:00 PM',
+          contactEmail: 'jenkins@faculty.edu'
+        }
+      },
+      {
+        name: 'Dr. Vikramaditya Rao',
+        email: 'rao@faculty.edu',
+        password: 'password123',
+        role: 'faculty',
+        headline: 'Principal Investigator - High Performance & Cloud Infrastructure',
+        bio: 'Expert in Kubernetes orchestration, microservice telemetry, distributed consensus (Raft, Paxos), and multi-cloud elasticity.',
+        skills: [{ name: 'Cloud Infrastructure', level: 'Expert', verified: true }, { name: 'Kubernetes', level: 'Expert', verified: true }, { name: 'Distributed Systems', level: 'Expert', verified: true }],
+        staffProfile: {
+          department: 'Information Technology',
+          designation: 'Associate Professor',
+          disciplines: ['Cloud Native Systems', 'Kubernetes & Docker Internals', 'Site Reliability Engineering', 'Distributed Consensus'],
+          officeHours: 'Mon/Wed 3:00 PM - 6:00 PM',
+          contactEmail: 'rao@faculty.edu'
         }
       }
     ]);
@@ -1385,28 +1599,8 @@ const seed = async () => {
     });
 
     // 8. Seed Initial Chat Messages Between Aditya & Dr. Thorne
-    await Message.insertMany([
-      {
-        sender: mentors[0]._id, // Dr. Thorne
-        recipient: student._id,
-        content: 'Hi Aditya, great progress on your Stanford CS224N Word2Vec repository! The negative sampling PyTorch loss formulation was well structured.',
-        read: true,
-        readAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
-      },
-      {
-        sender: student._id,
-        recipient: mentors[0]._id,
-        content: 'Thank you Professor Thorne! I had a quick question regarding Lecture 9 on FlashAttention - is the tiling done purely over SRAM cache line chunks?',
-        read: true,
-        readAt: new Date(Date.now() - 1 * 60 * 60 * 1000)
-      },
-      {
-        sender: mentors[0]._id,
-        recipient: student._id,
-        content: 'Exactly right. SRAM on the A100/H100 is ~20TB/s compared to ~2TB/s for HBM. Keeping the Q/K blocks inside SRAM completely circumvents memory bandwidth saturation.',
-        read: false
-      }
-    ]);
+    // Messages cleared: start fresh without preset conversations
+    console.log("[Seed] Fresh chat threads without pre-existing conversations.");
 
     console.log('[Seed] Seeded student-mentor messages.');
     console.log('\n========================================');

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Search, 
   BookOpen, 
@@ -12,32 +12,42 @@ import {
   Star, 
   ArrowLeft,
   GraduationCap,
-  Terminal,
+  Paperclip,
   Send,
   Loader2,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  FileSpreadsheet,
+  X,
+  Compass,
+  Layers
 } from 'lucide-react';
 
 export function LearnView({ user, token, onActivityLogged }) {
   const [courses, setCourses] = useState([]);
+  const [myEnrollments, setMyEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedLecture, setSelectedLecture] = useState(null);
   const [enrollment, setEnrollment] = useState(null);
-  const [activeTab, setActiveTab] = useState('lectures'); // 'lectures', 'notes', 'project', 'quiz'
+
+  // Main Learn Portal Sub-tab: 'learning' (Active courses) vs 'explore' (Catalog)
+  const [portalMode, setPortalMode] = useState('learning'); // 'learning' | 'explore'
+  const [courseTab, setCourseTab] = useState('lectures'); // 'lectures', 'notes', 'project', 'quiz'
 
   // Filtering & search
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedUniversity, setSelectedUniversity] = useState('All');
 
-  // Notes state
+  // Notes & File Upload state
   const [noteContent, setNoteContent] = useState('');
+  const [attachedFiles, setAttachedFiles] = useState([]);
   const [savingNote, setSavingNote] = useState(false);
   const [noteStatus, setNoteStatus] = useState('');
+  const fileInputRef = useRef(null);
 
-  // Project state
+  // Project Artifact state
   const [projectTitle, setProjectTitle] = useState('');
   const [projectRepo, setProjectRepo] = useState('');
   const [projectDemo, setProjectDemo] = useState('');
@@ -52,26 +62,39 @@ export function LearnView({ user, token, onActivityLogged }) {
   const [submittingQuiz, setSubmittingQuiz] = useState(false);
   const [quizResult, setQuizResult] = useState(null);
 
-  // Fetch courses catalog
   useEffect(() => {
-    fetchCourses();
-  }, []);
+    fetchData();
+  }, [token]);
 
-  const fetchCourses = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/courses');
-      const data = await res.json();
-      const list = data.courses || data || [];
-      setCourses(list);
+      const [coursesRes, enrollRes] = await Promise.all([
+        fetch('/api/courses'),
+        token ? fetch('/api/enrollment/my', { headers: { Authorization: `Bearer ${token}` } }) : Promise.resolve(null)
+      ]);
+
+      if (coursesRes.ok) {
+        const cData = await coursesRes.json();
+        setCourses(cData.courses || cData || []);
+      }
+
+      if (enrollRes && enrollRes.ok) {
+        const eData = await enrollRes.json();
+        setMyEnrollments(eData || []);
+        // If student has no enrollments yet, default to explore mode
+        if (!eData || eData.length === 0) {
+          setPortalMode('explore');
+        }
+      }
     } catch (err) {
-      console.error('Error fetching courses:', err);
+      console.error('Error loading courses:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch enrollment when course selected
+  // Fetch individual enrollment when course is selected
   useEffect(() => {
     if (selectedCourse && token) {
       fetchEnrollment(selectedCourse._id);
@@ -88,16 +111,21 @@ export function LearnView({ user, token, onActivityLogged }) {
         setEnrollment(data);
         if (data.notes && data.notes.length > 0) {
           setNoteContent(data.notes[0].content || '');
+          setAttachedFiles(data.notes[0].attachedFiles || []);
+        } else {
+          setNoteContent('');
+          setAttachedFiles([]);
         }
       } else {
         setEnrollment(null);
+        setNoteContent('');
+        setAttachedFiles([]);
       }
     } catch (err) {
       console.error('Error fetching enrollment:', err);
     }
   };
 
-  // Handle Enrollment
   const handleEnroll = async (courseId) => {
     try {
       const res = await fetch(`/api/enrollment/${courseId}/enroll`, {
@@ -110,6 +138,7 @@ export function LearnView({ user, token, onActivityLogged }) {
       if (res.ok) {
         const data = await res.json();
         setEnrollment(data.enrollment);
+        fetchData();
         if (onActivityLogged) onActivityLogged();
       }
     } catch (err) {
@@ -117,7 +146,6 @@ export function LearnView({ user, token, onActivityLogged }) {
     }
   };
 
-  // Mark lecture watched & sync progress
   const handleLectureProgress = async (lectureId, isComplete = true) => {
     if (!selectedCourse) return;
     try {
@@ -143,6 +171,7 @@ export function LearnView({ user, token, onActivityLogged }) {
           completedLectures: data.completedLectures,
           lectureProgress: data.lectureProgress
         }));
+        fetchData();
         if (onActivityLogged) onActivityLogged();
       }
     } catch (err) {
@@ -150,9 +179,31 @@ export function LearnView({ user, token, onActivityLogged }) {
     }
   };
 
-  // Save notes
+  // Handle Note File Upload
+  const handleFileUpload = (e) => {
+    const files = Array.from(e.target.files || []);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const newFileObj = {
+          fileName: file.name,
+          fileSize: `${(file.size / 1024).toFixed(1)} KB`,
+          fileType: file.type || 'document',
+          fileData: reader.result,
+          uploadedAt: new Date()
+        };
+        setAttachedFiles(prev => [...prev, newFileObj]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeAttachedFile = (index) => {
+    setAttachedFiles(prev => prev.filter((_, idx) => idx !== index));
+  };
+
   const handleSaveNotes = async () => {
-    if (!selectedCourse || !noteContent) return;
+    if (!selectedCourse || (!noteContent && attachedFiles.length === 0)) return;
     try {
       setSavingNote(true);
       const res = await fetch(`/api/enrollment/${selectedCourse._id}/notes`, {
@@ -164,11 +215,12 @@ export function LearnView({ user, token, onActivityLogged }) {
         body: JSON.stringify({
           moduleId: selectedCourse.modules?.[0]?.moduleId || 'm1',
           moduleTitle: selectedCourse.modules?.[0]?.title || 'Module Notes',
-          content: noteContent
+          content: noteContent,
+          attachedFiles
         })
       });
       if (res.ok) {
-        setNoteStatus('Notes saved to cloud portfolio!');
+        setNoteStatus('Notes & files saved successfully!');
         setTimeout(() => setNoteStatus(''), 3000);
         if (onActivityLogged) onActivityLogged();
       }
@@ -179,7 +231,6 @@ export function LearnView({ user, token, onActivityLogged }) {
     }
   };
 
-  // Submit project artifact
   const handleSubmitProject = async (e) => {
     e.preventDefault();
     if (!selectedCourse || !projectTitle || !projectRepo) return;
@@ -205,7 +256,7 @@ export function LearnView({ user, token, onActivityLogged }) {
         setProjectRepo('');
         setProjectDemo('');
         setProjectDesc('');
-        setProjectStatus('Project artifact attached to institutional portfolio!');
+        setProjectStatus('Project artifact attached to institutional student record!');
         setTimeout(() => setProjectStatus(''), 4000);
         if (onActivityLogged) onActivityLogged();
       }
@@ -216,7 +267,6 @@ export function LearnView({ user, token, onActivityLogged }) {
     }
   };
 
-  // Generate On-Demand AI Module Quiz via Gemini Flash
   const handleGenerateModuleQuiz = async (module) => {
     try {
       setGeneratingQuiz(true);
@@ -241,7 +291,7 @@ export function LearnView({ user, token, onActivityLogged }) {
       if (res.ok) {
         const data = await res.json();
         setActiveQuiz(data.assessment);
-        setActiveTab('quiz');
+        setCourseTab('quiz');
       }
     } catch (err) {
       console.error('Error generating quiz:', err);
@@ -250,7 +300,6 @@ export function LearnView({ user, token, onActivityLogged }) {
     }
   };
 
-  // Submit Quiz Answers
   const handleSubmitQuiz = async () => {
     if (!activeQuiz) return;
     try {
@@ -285,7 +334,6 @@ export function LearnView({ user, token, onActivityLogged }) {
     }
   };
 
-  // Filtering list of courses
   const filteredCourses = courses.filter(course => {
     const matchesSearch = !search || 
       course.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -310,93 +358,78 @@ export function LearnView({ user, token, onActivityLogged }) {
     const isEnrolled = !!enrollment;
     const progress = enrollment?.progress || 0;
     const completedLectures = enrollment?.completedLectures || [];
-
-    // Find default lecture if none selected
     const currentLecture = selectedLecture || selectedCourse.modules?.[0]?.lectures?.[0];
 
     return (
-      <div className="space-y-6 animate-fadeIn pb-12">
-        {/* Back Button & Course Header */}
+      <div className="space-y-5 animate-fadeIn pb-12">
+        {/* Navigation Bar */}
         <div className="flex items-center justify-between">
           <button
             onClick={() => { setSelectedCourse(null); setSelectedLecture(null); }}
-            className="flex items-center gap-2 text-sm font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
+            className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to All 25 University Courses</span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Learn</span>
           </button>
 
           {!isEnrolled ? (
             <button
               onClick={() => handleEnroll(selectedCourse._id)}
-              className="px-6 py-2.5 rounded-xl bg-[#d97746] hover:bg-[#c26233] text-white text-sm font-semibold transition-all shadow-md shadow-[#d97746]/20 flex items-center gap-2"
+              className="px-4 py-2 rounded-xl bg-[#d97746] hover:bg-[#c26233] text-white text-xs font-semibold transition-all shadow-sm flex items-center gap-1.5"
             >
-              <BookOpen className="w-4 h-4" />
+              <BookOpen className="w-3.5 h-3.5" />
               <span>Enroll in Course</span>
             </button>
           ) : (
             <div className="flex items-center gap-3">
-              <span className="text-xs text-[var(--text-muted)]">Course Progress:</span>
-              <div className="w-32 bg-[var(--border-color)] h-2 rounded-full overflow-hidden">
+              <span className="text-[11px] text-[var(--text-muted)]">Course Completion:</span>
+              <div className="w-28 bg-[var(--border-color)] h-1.5 rounded-full overflow-hidden">
                 <div 
                   className="bg-gradient-to-r from-[#d97746] to-emerald-500 h-full rounded-full transition-all duration-500"
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <span className="text-xs font-bold text-emerald-500">{progress}%</span>
+              <span className="text-xs font-bold text-emerald-500 font-mono">{progress}%</span>
             </div>
           )}
         </div>
 
-        {/* Hero Meta Card */}
-        <div className="rounded-3xl p-6 md:p-8 bg-[var(--card-bg)] border border-[var(--border-color)] shadow-xl relative overflow-hidden">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-[#d97746]/10 text-[#d97746] border border-[#d97746]/20">
-                  {selectedCourse.university || selectedCourse.provider}
-                </span>
-                <span className="text-xs font-mono text-[var(--text-muted)]">{selectedCourse.code}</span>
-                <span className="text-xs px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                  {selectedCourse.difficulty}
-                </span>
-              </div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-[var(--text-main)]">
-                {selectedCourse.title}
-              </h1>
-              <p className="text-xs md:text-sm text-[var(--text-muted)] max-w-3xl leading-relaxed">
-                {selectedCourse.description}
-              </p>
-              <p className="text-xs text-[var(--text-muted)] pt-1">
-                Instructor: <strong className="text-[var(--text-main)]">{selectedCourse.instructor}</strong> • {selectedCourse.durationHours || 36} Hours
-              </p>
-            </div>
+        {/* Minimal Course Header Banner */}
+        <div className="p-5 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] space-y-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#d97746]/10 text-[#d97746] border border-[#d97746]/20">
+              {selectedCourse.university || selectedCourse.provider}
+            </span>
+            <span className="text-xs font-mono text-[var(--text-muted)]">{selectedCourse.code}</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400">
+              {selectedCourse.difficulty}
+            </span>
+          </div>
 
-            {/* Skills Covered */}
-            <div className="md:w-72 shrink-0 space-y-2">
-              <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider block">
-                Target Competencies
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {(selectedCourse.skillsCovered || []).map((skill, idx) => (
-                  <span
-                    key={idx}
-                    className="text-xs px-2.5 py-1 rounded-lg bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] font-medium"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
+          <h1 className="text-lg md:text-xl font-bold text-[var(--text-main)]">
+            {selectedCourse.title}
+          </h1>
+
+          <p className="text-xs text-[var(--text-muted)] max-w-4xl leading-relaxed">
+            {selectedCourse.description}
+          </p>
+
+          <div className="flex items-center gap-4 text-xs text-[var(--text-muted)] pt-1 flex-wrap">
+            <span>Instructor: <strong className="text-[var(--text-main)]">{selectedCourse.instructor}</strong></span>
+            <span>Duration: <strong>{selectedCourse.durationHours || 36}h</strong></span>
+            <span className="flex items-center gap-1">
+              <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+              {selectedCourse.rating || 4.9}
+            </span>
           </div>
         </div>
 
-        {/* Video Player & Tabs Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Content Area (Player / Notes / Artifacts) */}
-          <div className="lg:col-span-2 space-y-4">
-            {/* YouTube Player Container */}
-            <div className="rounded-3xl overflow-hidden bg-black aspect-video border border-[var(--border-color)] shadow-2xl relative">
+        {/* Video Player & Syllabus Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {/* Main Video & Module Tabs (8 cols) */}
+          <div className="lg:col-span-8 space-y-4">
+            {/* Embedded YouTube Player */}
+            <div className="rounded-2xl overflow-hidden bg-black aspect-video border border-[var(--border-color)] shadow-xl relative">
               {currentLecture ? (
                 <iframe
                   src={`https://www.youtube-nocookie.com/embed/${currentLecture.youtubeVideoId}?autoplay=0&enablejsapi=1&rel=0&modestbranding=1`}
@@ -406,267 +439,244 @@ export function LearnView({ user, token, onActivityLogged }) {
                   allowFullScreen
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)]">
-                  Select a lecture to begin streaming
+                <div className="w-full h-full flex items-center justify-center text-xs text-[var(--text-muted)]">
+                  Select a lecture from the right syllabus to start streaming
                 </div>
               )}
             </div>
 
-            {/* Lecture Meta & Mark Watched */}
+            {/* Lecture Bar & Status */}
             {currentLecture && (
-              <div className="p-4 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] flex items-center justify-between gap-4 flex-wrap">
-                <div>
-                  <h3 className="font-bold text-sm text-[var(--text-main)]">{currentLecture.title}</h3>
-                  <p className="text-xs text-[var(--text-muted)] mt-0.5">{currentLecture.summary || 'University open lecture'}</p>
+              <div className="p-3.5 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] flex items-center justify-between gap-3 flex-wrap">
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-xs text-[var(--text-main)] truncate">{currentLecture.title}</h3>
+                  <p className="text-[11px] text-[var(--text-muted)]">{currentLecture.summary || 'University open lecture'}</p>
                 </div>
 
                 <button
                   onClick={() => handleLectureProgress(currentLecture.lectureId || currentLecture._id, true)}
-                  className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                     completedLectures.includes(currentLecture.lectureId || currentLecture._id)
                       ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
                       : 'bg-[#d97746] hover:bg-[#c26233] text-white'
                   }`}
                 >
-                  <CheckCircle className="w-3.5 h-3.5" />
+                  <CheckCircle className="w-3 h-3" />
                   <span>
                     {completedLectures.includes(currentLecture.lectureId || currentLecture._id)
-                      ? 'Completed (+Progress)'
-                      : 'Mark Lecture Complete'}
+                      ? 'Watched'
+                      : 'Mark Watched'}
                   </span>
                 </button>
               </div>
             )}
 
-            {/* Module Tabs (Notes, Project Artifacts, AI Quiz) */}
-            <div className="rounded-3xl p-6 bg-[var(--card-bg)] border border-[var(--border-color)] shadow-xl">
-              <div className="flex border-b border-[var(--border-color)] pb-3 gap-6 text-sm font-semibold">
+            {/* Tabs (Notes + File Uploads, Projects, AI Quiz) */}
+            <div className="rounded-2xl p-5 bg-[var(--card-bg)] border border-[var(--border-color)] space-y-4">
+              <div className="flex border-b border-[var(--border-color)] pb-2.5 gap-5 text-xs font-semibold">
                 <button
-                  onClick={() => setActiveTab('lectures')}
-                  className={`pb-1 transition-all ${activeTab === 'lectures' ? 'text-[#d97746] border-b-2 border-[#d97746]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
+                  onClick={() => setCourseTab('lectures')}
+                  className={`pb-1 transition-all ${courseTab === 'lectures' ? 'text-[#d97746] border-b-2 border-[#d97746]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
                 >
-                  Overview & Readings
+                  Syllabus Overview
                 </button>
                 <button
-                  onClick={() => setActiveTab('notes')}
-                  className={`pb-1 transition-all flex items-center gap-1.5 ${activeTab === 'notes' ? 'text-[#d97746] border-b-2 border-[#d97746]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
+                  onClick={() => setCourseTab('notes')}
+                  className={`pb-1 transition-all flex items-center gap-1.5 ${courseTab === 'notes' ? 'text-[#d97746] border-b-2 border-[#d97746]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
                 >
-                  <FileText className="w-4 h-4" />
-                  <span>Module Notes</span>
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Notes & Attachments ({attachedFiles.length})</span>
                 </button>
                 <button
-                  onClick={() => setActiveTab('project')}
-                  className={`pb-1 transition-all flex items-center gap-1.5 ${activeTab === 'project' ? 'text-[#d97746] border-b-2 border-[#d97746]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
+                  onClick={() => setCourseTab('project')}
+                  className={`pb-1 transition-all flex items-center gap-1.5 ${courseTab === 'project' ? 'text-[#d97746] border-b-2 border-[#d97746]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
                 >
-                  <Upload className="w-4 h-4" />
+                  <Upload className="w-3.5 h-3.5" />
                   <span>Submit Artifact</span>
                 </button>
                 {activeQuiz && (
                   <button
-                    onClick={() => setActiveTab('quiz')}
-                    className={`pb-1 transition-all flex items-center gap-1.5 ${activeTab === 'quiz' ? 'text-[#d97746] border-b-2 border-[#d97746]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
+                    onClick={() => setCourseTab('quiz')}
+                    className={`pb-1 transition-all flex items-center gap-1.5 ${courseTab === 'quiz' ? 'text-[#d97746] border-b-2 border-[#d97746]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
                   >
-                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                     <span>AI Module Quiz</span>
                   </button>
                 )}
               </div>
 
               {/* Tab 1: Overview */}
-              {activeTab === 'lectures' && (
-                <div className="pt-4 space-y-4">
-                  <div className="text-sm text-[var(--text-muted)] leading-relaxed">
-                    This course curriculum is sourced directly from premier institutional lecture archives ({selectedCourse.university}). All lectures are embedded from verified university YouTube channels with live progress telemetry syncing with your GitHub learning activity heatmap.
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-color)]">
-                    <h4 className="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider mb-2">
-                      Academic Syllabus Summary
-                    </h4>
-                    <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                      {selectedCourse.description}
-                    </p>
+              {courseTab === 'lectures' && (
+                <div className="text-xs text-[var(--text-muted)] space-y-2 leading-relaxed">
+                  <p>
+                    All lectures and problem sets are archived directly from verified university channels ({selectedCourse.university}). Video progress updates dynamically stream into your GitHub activity heatmap and qualification profile.
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 pt-2">
+                    {(selectedCourse.skillsCovered || []).map((sk, idx) => (
+                      <span key={idx} className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)]">
+                        {sk}
+                      </span>
+                    ))}
                   </div>
                 </div>
               )}
 
-              {/* Tab 2: Notes */}
-              {activeTab === 'notes' && (
-                <div className="pt-4 space-y-4">
+              {/* Tab 2: Notes & File Uploads */}
+              {courseTab === 'notes' && (
+                <div className="space-y-3 text-xs">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-bold text-[var(--text-main)]">Student Module Notes (Markdown Supported)</h4>
-                      <p className="text-xs text-[var(--text-muted)]">Notes persist into your institutional student record and portfolio.</p>
-                    </div>
-                    {noteStatus && (
-                      <span className="text-xs font-semibold text-emerald-500 animate-pulse">{noteStatus}</span>
-                    )}
+                    <span className="font-semibold text-[var(--text-main)]">Student Notes & Solution PDFs</span>
+                    {noteStatus && <span className="text-[11px] text-emerald-500 font-semibold">{noteStatus}</span>}
                   </div>
 
                   <textarea
-                    rows={6}
+                    rows={5}
                     value={noteContent}
                     onChange={(e) => setNoteContent(e.target.value)}
-                    placeholder="Write key equations, algorithm invariants, or lecture takeaways here (e.g. # Lecture Takeaways, - Key theorems)..."
-                    className="w-full p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-color)] text-sm text-[var(--text-main)] focus:outline-none focus:border-[#d97746] font-mono leading-relaxed resize-none"
+                    placeholder="Type key formulas, lecture invariants, or algorithmic proofs..."
+                    className="w-full p-3 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-[#d97746] font-mono resize-none leading-relaxed"
                   />
 
-                  <div className="flex justify-end">
+                  {/* Attached Files List */}
+                  {attachedFiles.length > 0 && (
+                    <div className="space-y-1.5 pt-1">
+                      <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">Attached Documents</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {attachedFiles.map((file, idx) => (
+                          <div key={idx} className="p-2 rounded-lg bg-[var(--bg-main)] border border-[var(--border-color)] flex items-center justify-between text-[11px]">
+                            <div className="flex items-center gap-1.5 truncate">
+                              <FileSpreadsheet className="w-3.5 h-3.5 text-[#d97746] shrink-0" />
+                              <span className="truncate">{file.fileName}</span>
+                              <span className="text-[10px] text-[var(--text-muted)] font-mono">({file.fileSize})</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeAttachedFile(idx)}
+                              className="text-[var(--text-muted)] hover:text-rose-400 p-0.5"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between pt-2">
+                    {/* Hidden file input */}
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileUpload}
+                      multiple
+                      className="hidden"
+                      accept=".pdf,.png,.jpg,.jpeg,.py,.ipynb,.txt,.zip"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-3 py-1.5 rounded-lg bg-[var(--bg-main)] hover:bg-[var(--border-color)] border border-[var(--border-color)] text-xs text-[var(--text-main)] flex items-center gap-1.5 transition-colors"
+                    >
+                      <Paperclip className="w-3 h-3 text-[#d97746]" />
+                      <span>Upload Notes / Solution PDF</span>
+                    </button>
+
                     <button
                       onClick={handleSaveNotes}
                       disabled={savingNote}
-                      className="px-5 py-2 rounded-xl bg-[#d97746] hover:bg-[#c26233] text-white text-xs font-semibold flex items-center gap-2 transition-all"
+                      className="px-4 py-1.5 rounded-lg bg-[#d97746] hover:bg-[#c26233] text-white text-xs font-semibold flex items-center gap-1.5 transition-all"
                     >
-                      {savingNote ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
+                      {savingNote ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
                       <span>Save Notes (+Activity Log)</span>
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* Tab 3: Project Artifact Submission */}
-              {activeTab === 'project' && (
-                <div className="pt-4 space-y-4">
-                  <div>
-                    <h4 className="text-sm font-bold text-[var(--text-main)]">Submit Problem Set / Project Artifact</h4>
-                    <p className="text-xs text-[var(--text-muted)]">
-                      Link your GitHub repository or live deployment to prove verified practical implementation.
-                    </p>
-                  </div>
-
+              {/* Tab 3: Artifact Submission */}
+              {courseTab === 'project' && (
+                <form onSubmit={handleSubmitProject} className="space-y-3 text-xs">
                   {projectStatus && (
-                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-500">
+                    <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 font-semibold">
                       {projectStatus}
                     </div>
                   )}
 
-                  <form onSubmit={handleSubmitProject} className="space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-xs font-semibold text-[var(--text-muted)] block mb-1">Artifact / Assignment Title</label>
-                        <input
-                          type="text"
-                          required
-                          value={projectTitle}
-                          onChange={(e) => setProjectTitle(e.target.value)}
-                          placeholder="e.g. PyTorch Skip-Gram Implementation"
-                          className="w-full px-3.5 py-2 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-[#d97746]"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs font-semibold text-[var(--text-muted)] block mb-1">GitHub Repository URL</label>
-                        <input
-                          type="url"
-                          required
-                          value={projectRepo}
-                          onChange={(e) => setProjectRepo(e.target.value)}
-                          placeholder="https://github.com/..."
-                          className="w-full px-3.5 py-2 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-[#d97746]"
-                        />
-                      </div>
-                    </div>
-
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                      <label className="text-xs font-semibold text-[var(--text-muted)] block mb-1">Live Demo / Colab Notebook URL (Optional)</label>
+                      <label className="text-[11px] font-semibold text-[var(--text-muted)] block mb-1">Project / Artifact Title</label>
+                      <input
+                        type="text"
+                        required
+                        value={projectTitle}
+                        onChange={(e) => setProjectTitle(e.target.value)}
+                        placeholder="e.g. PyTorch Skip-Gram Model"
+                        className="w-full px-3 py-1.5 rounded-lg bg-[var(--bg-main)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-[#d97746]"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-semibold text-[var(--text-muted)] block mb-1">GitHub Repo URL</label>
                       <input
                         type="url"
-                        value={projectDemo}
-                        onChange={(e) => setProjectDemo(e.target.value)}
-                        placeholder="https://colab.research.google.com/..."
-                        className="w-full px-3.5 py-2 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-[#d97746]"
+                        required
+                        value={projectRepo}
+                        onChange={(e) => setProjectRepo(e.target.value)}
+                        placeholder="https://github.com/..."
+                        className="w-full px-3 py-1.5 rounded-lg bg-[var(--bg-main)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-[#d97746]"
                       />
                     </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-[var(--text-muted)] block mb-1">Implementation Notes</label>
-                      <textarea
-                        rows={2}
-                        value={projectDesc}
-                        onChange={(e) => setProjectDesc(e.target.value)}
-                        placeholder="Brief summary of models trained, loss curves, or benchmarks achieved..."
-                        className="w-full px-3.5 py-2 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-[#d97746] resize-none"
-                      />
-                    </div>
-
-                    <div className="flex justify-end pt-1">
-                      <button
-                        type="submit"
-                        disabled={submittingProject}
-                        className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-2 transition-all shadow-md shadow-emerald-600/20"
-                      >
-                        {submittingProject ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-                        <span>Submit Project Artifact</span>
-                      </button>
-                    </div>
-                  </form>
-
-                  {/* Existing Artifacts */}
-                  {enrollment?.projectArtifacts && enrollment.projectArtifacts.length > 0 && (
-                    <div className="mt-6 pt-4 border-t border-[var(--border-color)]">
-                      <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider block mb-3">
-                        Submitted Artifacts ({enrollment.projectArtifacts.length})
-                      </span>
-                      <div className="space-y-2">
-                        {enrollment.projectArtifacts.map((art, idx) => (
-                          <div key={idx} className="p-3 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] flex items-center justify-between">
-                            <div>
-                              <h5 className="text-xs font-bold text-[var(--text-main)]">{art.title}</h5>
-                              <a 
-                                href={art.repoUrl} 
-                                target="_blank" 
-                                rel="noreferrer" 
-                                className="text-[11px] text-[#d97746] hover:underline flex items-center gap-1 mt-0.5"
-                              >
-                                {art.repoUrl} <ExternalLink className="w-3 h-3" />
-                              </a>
-                            </div>
-                            <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                              Verified
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Tab 4: Active AI Quiz */}
-              {activeTab === 'quiz' && activeQuiz && (
-                <div className="pt-4 space-y-6">
-                  <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-amber-500" />
-                      <h4 className="text-sm font-bold text-[var(--text-main)]">{activeQuiz.title}</h4>
-                    </div>
-                    <p className="text-xs text-[var(--text-muted)] mt-1">{activeQuiz.description}</p>
                   </div>
 
-                  {/* Question Renderers */}
-                  <div className="space-y-6">
+                  <div>
+                    <label className="text-[11px] font-semibold text-[var(--text-muted)] block mb-1">Notes / Benchmarks Achieved</label>
+                    <textarea
+                      rows={2}
+                      value={projectDesc}
+                      onChange={(e) => setProjectDesc(e.target.value)}
+                      placeholder="Brief implementation summary..."
+                      className="w-full px-3 py-1.5 rounded-lg bg-[var(--bg-main)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-[#d97746] resize-none"
+                    />
+                  </div>
+
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={submittingProject}
+                      className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-1.5 shadow-sm"
+                    >
+                      {submittingProject ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                      <span>Attach Artifact</span>
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* Tab 4: AI Quiz */}
+              {courseTab === 'quiz' && activeQuiz && (
+                <div className="space-y-4 text-xs">
+                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                    <span className="font-bold text-amber-500 block">{activeQuiz.title}</span>
+                    <span className="text-[11px] text-[var(--text-muted)]">{activeQuiz.description}</span>
+                  </div>
+
+                  <div className="space-y-4">
                     {activeQuiz.questions.map((q, idx) => (
-                      <div key={q._id || idx} className="p-5 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-color)] space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold px-2 py-0.5 rounded bg-[var(--border-color)] text-[var(--text-muted)] uppercase">
-                            Question {idx + 1} • {q.type.toUpperCase()}
-                          </span>
-                          <span className="text-xs font-mono text-emerald-500">{q.points || 25} pts</span>
+                      <div key={q._id || idx} className="p-4 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] space-y-2">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="font-bold uppercase text-[var(--text-muted)]">Q{idx + 1} • {q.type}</span>
+                          <span className="font-mono text-emerald-500">{q.points || 25} pts</span>
                         </div>
+                        <p className="font-semibold text-[var(--text-main)] leading-relaxed">{q.question}</p>
 
-                        <p className="text-sm font-semibold text-[var(--text-main)] leading-relaxed">
-                          {q.question}
-                        </p>
-
-                        {/* MCQ Options */}
                         {q.type === 'mcq' && q.options && (
-                          <div className="space-y-2 pt-1">
+                          <div className="space-y-1.5 pt-1">
                             {q.options.map((opt, oIdx) => (
                               <label
                                 key={oIdx}
-                                className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                                className={`flex items-center gap-2.5 p-2 rounded-lg border cursor-pointer text-xs transition-all ${
                                   quizAnswers[q._id] === oIdx
                                     ? 'bg-[#d97746]/10 border-[#d97746] text-[var(--text-main)] font-semibold'
-                                    : 'bg-[var(--card-bg)] border-[var(--border-color)] text-[var(--text-muted)] hover:border-gray-500'
+                                    : 'bg-[var(--card-bg)] border-[var(--border-color)] text-[var(--text-muted)]'
                                 }`}
                               >
                                 <input
@@ -676,81 +686,58 @@ export function LearnView({ user, token, onActivityLogged }) {
                                   onChange={() => setQuizAnswers({ ...quizAnswers, [q._id]: oIdx })}
                                   className="accent-[#d97746]"
                                 />
-                                <span className="text-xs">{opt}</span>
+                                <span>{opt}</span>
                               </label>
                             ))}
                           </div>
                         )}
 
-                        {/* Conceptual Text Box */}
                         {q.type === 'conceptual' && (
                           <textarea
-                            rows={4}
+                            rows={3}
                             value={quizAnswers[q._id] || ''}
                             onChange={(e) => setQuizAnswers({ ...quizAnswers, [q._id]: e.target.value })}
-                            placeholder="Provide your in-depth technical explanation here (graded by Gemini 2.5 Flash against syllabus rubric)..."
-                            className="w-full p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-[#d97746] resize-none"
+                            placeholder="Detail your conceptual reasoning..."
+                            className="w-full p-2.5 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] text-xs text-[var(--text-main)] focus:outline-none focus:border-[#d97746] resize-none"
                           />
                         )}
 
-                        {/* Coding Problem Box */}
                         {q.type === 'coding' && (
-                          <div className="space-y-2">
-                            <textarea
-                              rows={5}
-                              value={quizAnswers[q._id] || q.starterCode || ''}
-                              onChange={(e) => setQuizAnswers({ ...quizAnswers, [q._id]: e.target.value })}
-                              className="w-full p-3 rounded-xl bg-[#0e1013] border border-[#242833] text-xs text-emerald-400 font-mono focus:outline-none focus:border-[#d97746] resize-none"
-                            />
-                          </div>
+                          <textarea
+                            rows={4}
+                            value={quizAnswers[q._id] || q.starterCode || ''}
+                            onChange={(e) => setQuizAnswers({ ...quizAnswers, [q._id]: e.target.value })}
+                            className="w-full p-2.5 rounded-lg bg-[#0e1013] border border-[#242833] text-xs font-mono text-emerald-400 focus:outline-none resize-none"
+                          />
                         )}
                       </div>
                     ))}
                   </div>
 
-                  {/* Submit Button */}
                   {!quizResult ? (
                     <div className="flex justify-end">
                       <button
                         onClick={handleSubmitQuiz}
                         disabled={submittingQuiz}
-                        className="px-6 py-2.5 rounded-xl bg-[#d97746] hover:bg-[#c26233] text-white text-xs font-semibold flex items-center gap-2 transition-all shadow-md shadow-[#d97746]/20"
+                        className="px-4 py-2 rounded-xl bg-[#d97746] hover:bg-[#c26233] text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm"
                       >
-                        {submittingQuiz ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-                        <span>Submit for Neural AI Grading</span>
+                        {submittingQuiz ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                        <span>Submit for Neural Grading</span>
                       </button>
                     </div>
                   ) : (
-                    /* Quiz Result Scorecard */
-                    <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/30 space-y-4">
+                    <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
                       <div className="flex items-center justify-between">
-                        <div>
-                          <span className="text-xs font-bold text-emerald-500 uppercase tracking-wider block">
-                            Grading Complete
-                          </span>
-                          <h4 className="text-xl font-black text-[var(--text-main)]">
-                            Final Score: {quizResult.totalScore} / {quizResult.maxPossibleScore} ({quizResult.percentage}%)
-                          </h4>
-                        </div>
-                        <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${
-                          quizResult.passed 
-                            ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30' 
-                            : 'bg-amber-500 text-white'
+                        <span className="font-bold text-sm text-[var(--text-main)]">
+                          Score: {quizResult.totalScore} / {quizResult.maxPossibleScore} ({quizResult.percentage}%)
+                        </span>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          quizResult.passed ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'
                         }`}>
-                          {quizResult.passed ? 'PASSED & SKILL VERIFIED' : 'REVIEW & RETRY'}
+                          {quizResult.passed ? 'PASSED & SKILL VERIFIED' : 'NEEDS RETRY'}
                         </span>
                       </div>
-
-                      <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                        {quizResult.overallFeedback}
-                      </p>
-
-                      {quizResult.verifiedSkillCredited && (
-                        <div className="p-3 rounded-xl bg-[var(--card-bg)] border border-emerald-500/40 flex items-center gap-2 text-xs font-semibold text-emerald-400">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                          <span>Credited to profile: Verified competency in <strong>{quizResult.verifiedSkillCredited}</strong></span>
-                        </div>
-                      )}
+                      <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">{quizResult.overallFeedback}</p>
                     </div>
                   )}
                 </div>
@@ -758,81 +745,64 @@ export function LearnView({ user, token, onActivityLogged }) {
             </div>
           </div>
 
-          {/* Right Column: Structured Course Modules & Lectures */}
-          <div className="space-y-4">
-            <div className="rounded-3xl p-5 bg-[var(--card-bg)] border border-[var(--border-color)] shadow-xl space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-sm text-[var(--text-main)]">Course Syllabus</h3>
-                <span className="text-xs font-mono text-[var(--text-muted)]">
-                  {selectedCourse.modules?.length || 0} Modules
-                </span>
-              </div>
+          {/* Right Column: Structured Syllabus Accordion (4 cols) */}
+          <div className="lg:col-span-4 rounded-2xl p-4 bg-[var(--card-bg)] border border-[var(--border-color)] space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-[var(--border-color)]">
+              <span className="text-xs font-bold text-[var(--text-main)]">Course Syllabus</span>
+              <span className="text-[10px] font-mono text-[var(--text-muted)]">{selectedCourse.modules?.length || 0} Modules</span>
+            </div>
 
-              <div className="space-y-4 max-h-[700px] overflow-y-auto pr-1 scrollbar-thin">
-                {(selectedCourse.modules || []).map((mod, mIdx) => (
-                  <div key={mod.moduleId || mIdx} className="rounded-2xl bg-[var(--bg-main)] border border-[var(--border-color)] overflow-hidden">
-                    {/* Module Title & AI Assessment Trigger */}
-                    <div className="p-3.5 bg-[var(--card-bg)]/60 border-b border-[var(--border-color)] flex items-center justify-between gap-2">
-                      <div>
-                        <span className="text-[10px] font-bold text-[#d97746] uppercase tracking-wider block">
-                          Module {mIdx + 1}
-                        </span>
-                        <h4 className="text-xs font-bold text-[var(--text-main)] mt-0.5 line-clamp-1">
-                          {mod.title}
-                        </h4>
-                      </div>
-
-                      <button
-                        onClick={() => handleGenerateModuleQuiz(mod)}
-                        disabled={generatingQuiz}
-                        title="Generate on-demand assessment via Gemini Flash"
-                        className="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/30 text-[10px] font-semibold flex items-center gap-1 transition-all shrink-0"
-                      >
-                        <Sparkles className="w-3 h-3" />
-                        <span>AI Quiz</span>
-                      </button>
+            <div className="space-y-3 max-h-[640px] overflow-y-auto pr-1 scrollbar-thin">
+              {(selectedCourse.modules || []).map((mod, mIdx) => (
+                <div key={mod.moduleId || mIdx} className="rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] overflow-hidden">
+                  <div className="p-2.5 bg-[var(--card-bg)]/80 border-b border-[var(--border-color)] flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <span className="text-[9px] font-bold text-[#d97746] uppercase block">Module {mIdx + 1}</span>
+                      <h4 className="text-xs font-bold text-[var(--text-main)] truncate mt-0.5">{mod.title}</h4>
                     </div>
+                    <button
+                      onClick={() => handleGenerateModuleQuiz(mod)}
+                      disabled={generatingQuiz}
+                      title="Generate dynamic AI quiz"
+                      className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/30 text-[9px] font-bold flex items-center gap-1 shrink-0 hover:bg-amber-500/20"
+                    >
+                      <Sparkles className="w-2.5 h-2.5" />
+                      <span>Quiz</span>
+                    </button>
+                  </div>
 
-                    {/* Lectures List */}
-                    <div className="divide-y divide-[var(--border-color)]">
-                      {(mod.lectures || []).map((lec, lIdx) => {
-                        const isCurrent = currentLecture?.lectureId === lec.lectureId || currentLecture?._id === lec._id;
-                        const isDone = completedLectures.includes(lec.lectureId || lec._id);
+                  <div className="divide-y divide-[var(--border-color)] text-xs">
+                    {(mod.lectures || []).map((lec, lIdx) => {
+                      const isCurrent = currentLecture?.lectureId === lec.lectureId || currentLecture?._id === lec._id;
+                      const isDone = completedLectures.includes(lec.lectureId || lec._id);
 
-                        return (
-                          <div
-                            key={lec.lectureId || lIdx}
-                            onClick={() => setSelectedLecture(lec)}
-                            className={`p-3 flex items-start justify-between gap-3 cursor-pointer transition-all ${
-                              isCurrent
-                                ? 'bg-[#d97746]/10 border-l-2 border-[#d97746]'
-                                : 'hover:bg-[var(--card-bg)]/50'
-                            }`}
-                          >
-                            <div className="flex items-start gap-2.5 min-w-0">
-                              <div className="mt-0.5">
-                                {isDone ? (
-                                  <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                                ) : (
-                                  <Play className={`w-3.5 h-3.5 ${isCurrent ? 'text-[#d97746]' : 'text-[var(--text-muted)]'} shrink-0`} />
-                                )}
-                              </div>
-                              <div className="min-w-0">
-                                <p className={`text-xs font-medium leading-tight truncate ${isCurrent ? 'text-[#d97746] font-bold' : 'text-[var(--text-main)]'}`}>
-                                  {lec.title}
-                                </p>
-                                <span className="text-[10px] text-[var(--text-muted)] block mt-0.5">
-                                  {lec.duration || '1 hr 15 min'}
-                                </span>
-                              </div>
+                      return (
+                        <div
+                          key={lec.lectureId || lIdx}
+                          onClick={() => setSelectedLecture(lec)}
+                          className={`p-2.5 flex items-start justify-between gap-2 cursor-pointer transition-colors ${
+                            isCurrent ? 'bg-[#d97746]/10 border-l-2 border-[#d97746]' : 'hover:bg-[var(--card-bg)]/40'
+                          }`}
+                        >
+                          <div className="flex items-start gap-2 min-w-0">
+                            {isDone ? (
+                              <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                            ) : (
+                              <Play className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${isCurrent ? 'text-[#d97746]' : 'text-[var(--text-muted)]'}`} />
+                            )}
+                            <div className="min-w-0">
+                              <p className={`text-[11px] leading-tight truncate ${isCurrent ? 'text-[#d97746] font-bold' : 'text-[var(--text-main)]'}`}>
+                                {lec.title}
+                              </p>
+                              <span className="text-[9px] text-[var(--text-muted)] block mt-0.5">{lec.duration || '1 hr 15 min'}</span>
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -840,160 +810,247 @@ export function LearnView({ user, token, onActivityLogged }) {
     );
   }
 
-  // Course Catalog Grid View
+  // Learn Portal Hub with Modes: 'learning' vs 'explore'
   return (
-    <div className="space-y-8 animate-fadeIn">
-      {/* Header Banner */}
-      <div className="rounded-3xl p-8 bg-[var(--card-bg)] border border-[var(--border-color)] shadow-xl relative overflow-hidden">
-        <div className="max-w-3xl space-y-3 relative z-10">
+    <div className="space-y-6 animate-fadeIn pb-12">
+      {/* Top Banner - Modular & Downsized Typography */}
+      <div className="p-5 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#d97746]/15 text-[#d97746] border border-[#d97746]/30">
-              Curated Open Courseware Catalog
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#d97746]/10 text-[#d97746] border border-[#d97746]/20">
+              Curated Open Courseware
             </span>
-            <span className="text-xs text-[var(--text-muted)]">25 Major University Courses</span>
+            <span className="text-xs text-[var(--text-muted)] font-mono">{courses.length} University Courses</span>
           </div>
-
-          <h1 className="text-2xl md:text-3xl font-extrabold text-[var(--text-main)] tracking-tight">
-            World-Class University Curriculums
+          <h1 className="text-base font-bold text-[var(--text-main)] mt-1">
+            University Curriculums & Deep Learning Laboratories
           </h1>
-          <p className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed">
-            Directly stream verified lecture series from Stanford Online, MIT OpenCourseWare, Harvard CS50, and UC Berkeley. Self-enroll to track watch progress into your GitHub-style activity heatmap, attach problem set repositories, and generate on-demand AI assessments powered by Google Gemini Flash.
+          <p className="text-xs text-[var(--text-muted)] mt-0.5 max-w-2xl">
+            Stream verified university video lectures from Stanford, MIT, Harvard, and UC Berkeley. Self-enroll, sync watch time to your GitHub activity heatmap, attach problem set code, and trigger on-demand Gemini Flash evaluations.
           </p>
         </div>
-      </div>
 
-      {/* Filters & Search Bar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-        {/* Search Input */}
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by title, university, instructor, or skill (e.g. Stanford, PyTorch, C++)..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] text-xs md:text-sm text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#d97746]"
-          />
-        </div>
-
-        {/* Institution Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
-          {universities.map((univ) => (
-            <button
-              key={univ}
-              onClick={() => setSelectedUniversity(univ)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                selectedUniversity === univ
-                  ? 'bg-[#d97746] text-white shadow-sm'
-                  : 'bg-[var(--card-bg)] text-[var(--text-muted)] border border-[var(--border-color)] hover:border-gray-500'
-              }`}
-            >
-              {univ}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Categories Filter Pills */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin text-xs">
-        {categories.map((cat) => (
+        {/* Portal Mode Switcher */}
+        <div className="flex items-center p-1 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] shrink-0 text-xs">
           <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`px-3 py-1 rounded-lg font-medium whitespace-nowrap transition-all ${
-              selectedCategory === cat
-                ? 'bg-[var(--text-main)] text-[var(--bg-main)]'
+            onClick={() => setPortalMode('learning')}
+            className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 transition-all ${
+              portalMode === 'learning'
+                ? 'bg-[#d97746] text-white shadow-sm'
                 : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
             }`}
           >
-            {cat}
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>My Learning ({myEnrollments.length})</span>
           </button>
-        ))}
+          <button
+            onClick={() => setPortalMode('explore')}
+            className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 transition-all ${
+              portalMode === 'explore'
+                ? 'bg-[#d97746] text-white shadow-sm'
+                : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
+            }`}
+          >
+            <Compass className="w-3.5 h-3.5" />
+            <span>Explore Courses ({courses.length})</span>
+          </button>
+        </div>
       </div>
 
-      {/* Courses Catalog Grid */}
-      {loading ? (
-        <div className="p-16 text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[#d97746] mx-auto mb-2" />
-          <p className="text-xs text-[var(--text-muted)]">Loading premier university open courses...</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCourses.map((course) => (
-            <div
-              key={course._id}
-              onClick={() => setSelectedCourse(course)}
-              className="rounded-3xl bg-[var(--card-bg)] border border-[var(--border-color)] hover:border-[#d97746]/60 transition-all cursor-pointer group flex flex-col overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1"
+      {/* Mode 1: Active Learning (Enrolled courses with progress & resume) */}
+      {portalMode === 'learning' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[var(--text-main)]">Active University Enrollments</span>
+            <button
+              onClick={() => setPortalMode('explore')}
+              className="text-xs text-[#d97746] hover:underline flex items-center gap-1"
             >
-              {/* Thumbnail Container */}
-              <div className="aspect-video w-full overflow-hidden bg-black/40 relative">
-                <img
-                  src={course.thumbnailUrl || course.thumbnail || 'https://images.unsplash.com/photo-1516116211227-bbc04f141446?w=800&auto=format&fit=crop&q=80'}
-                  alt={course.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs">
-                  <span className="font-bold px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm border border-white/10">
-                    {course.code}
-                  </span>
-                  <span className="flex items-center gap-1 font-mono text-[11px] bg-black/60 px-2 py-0.5 rounded backdrop-blur-sm">
-                    <Clock className="w-3 h-3 text-[#d97746]" />
-                    {course.durationHours || 36}h
-                  </span>
-                </div>
-              </div>
+              Browse Full Catalog &rarr;
+            </button>
+          </div>
 
-              {/* Card Body */}
-              <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
-                <div>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[11px] font-bold text-[#d97746] uppercase tracking-wide">
-                      {course.university || course.provider}
-                    </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-muted)] font-medium">
-                      {course.difficulty}
-                    </span>
+          {myEnrollments.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {myEnrollments.map((enr) => (
+                <div
+                  key={enr._id}
+                  onClick={() => setSelectedCourse(enr.course)}
+                  className="p-4 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] hover:border-[#d97746]/50 transition-all cursor-pointer group space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#d97746]/10 text-[#d97746]">
+                          {enr.course?.university || 'Stanford Online'}
+                        </span>
+                        <span className="text-xs font-mono text-[var(--text-muted)]">{enr.course?.code}</span>
+                      </div>
+                      <h3 className="font-bold text-sm text-[var(--text-main)] mt-1 group-hover:text-[#d97746] transition-colors">
+                        {enr.course?.title}
+                      </h3>
+                      <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
+                        {enr.course?.instructor}
+                      </p>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <span className="text-base font-black text-emerald-500 font-mono">{enr.progress || 0}%</span>
+                      <span className="text-[9px] text-[var(--text-muted)] block uppercase">progress</span>
+                    </div>
                   </div>
 
-                  <h3 className="font-bold text-base text-[var(--text-main)] mt-1.5 group-hover:text-[#d97746] transition-colors line-clamp-2">
-                    {course.title}
-                  </h3>
+                  {/* Progress bar */}
+                  <div className="w-full bg-[var(--bg-main)] h-1.5 rounded-full overflow-hidden border border-[var(--border-color)]">
+                    <div
+                      className="bg-gradient-to-r from-[#d97746] to-emerald-500 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${enr.progress || 0}%` }}
+                    />
+                  </div>
 
-                  <p className="text-xs text-[var(--text-muted)] mt-1 line-clamp-2 leading-relaxed">
-                    {course.description}
-                  </p>
-                </div>
-
-                <div className="space-y-3 pt-2 border-t border-[var(--border-color)]/60">
-                  <div className="flex items-center justify-between text-xs text-[var(--text-muted)]">
-                    <span>Instructor: <strong className="text-[var(--text-main)]">{course.instructor}</strong></span>
-                    <span className="flex items-center gap-1 text-amber-500 font-bold">
-                      <Star className="w-3 h-3 fill-amber-500" />
-                      {course.rating || 4.9}
+                  <div className="flex items-center justify-between text-[11px] text-[var(--text-muted)] pt-1 border-t border-[var(--border-color)]/60">
+                    <span>{enr.completedLectures?.length || 0} lectures completed</span>
+                    <span className="text-[#d97746] font-semibold group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                      Resume Video &rarr;
                     </span>
                   </div>
-
-                  {/* Skills Pills */}
-                  <div className="flex flex-wrap gap-1">
-                    {(course.skillsCovered || []).slice(0, 3).map((sk, idx) => (
-                      <span
-                        key={idx}
-                        className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--bg-main)] text-[var(--text-muted)] border border-[var(--border-color)]"
-                      >
-                        {sk}
-                      </span>
-                    ))}
-                    {(course.skillsCovered || []).length > 3 && (
-                      <span className="text-[10px] text-[var(--text-muted)] self-center">
-                        +{(course.skillsCovered || []).length - 3} more
-                      </span>
-                    )}
-                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            <div className="p-8 text-center rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] space-y-2">
+              <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto opacity-40" />
+              <p className="text-xs font-semibold text-[var(--text-main)]">No Active Courses Enrolled Yet</p>
+              <p className="text-[11px] text-[var(--text-muted)] max-w-sm mx-auto">
+                Explore the 25 university courses below and click &quot;Enroll&quot; to begin tracking your video progress.
+              </p>
+              <button
+                onClick={() => setPortalMode('explore')}
+                className="mt-2 px-4 py-1.5 rounded-xl bg-[#d97746] text-white text-xs font-semibold hover:bg-[#c26233]"
+              >
+                Browse Explore Catalog
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Mode 2: Explore Catalog */}
+      {(portalMode === 'explore' || myEnrollments.length === 0) && (
+        <div className="space-y-4">
+          {/* Search & Filter Controls */}
+          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-muted)]" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by title, university, instructor, or skill..."
+                className="w-full pl-9 pr-3 py-2 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] text-xs text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#d97746]"
+              />
+            </div>
+
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin text-xs">
+              {universities.map((univ) => (
+                <button
+                  key={univ}
+                  onClick={() => setSelectedUniversity(univ)}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all ${
+                    selectedUniversity === univ
+                      ? 'bg-[#d97746] text-white shadow-sm'
+                      : 'bg-[var(--card-bg)] text-[var(--text-muted)] border border-[var(--border-color)] hover:border-gray-500'
+                  }`}
+                >
+                  {univ}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Categories Filter Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin text-xs">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-2 py-0.5 rounded-md text-[11px] font-medium whitespace-nowrap transition-all ${
+                  selectedCategory === cat
+                    ? 'bg-[var(--text-main)] text-[var(--bg-main)]'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Course Cards Grid */}
+          {loading ? (
+            <div className="p-12 text-center text-xs text-[var(--text-muted)]">
+              <Loader2 className="w-6 h-6 animate-spin text-[#d97746] mx-auto mb-2" />
+              <span>Loading 25 university curriculums...</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredCourses.map((course) => (
+                <div
+                  key={course._id}
+                  onClick={() => setSelectedCourse(course)}
+                  className="rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] hover:border-[#d97746]/60 transition-all cursor-pointer group flex flex-col overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                >
+                  {/* Thumbnail */}
+                  <div className="aspect-video w-full overflow-hidden bg-black/40 relative">
+                    <img
+                      src={course.thumbnailUrl || course.thumbnail || 'https://images.unsplash.com/photo-1516116211227-bbc04f141446?w=800&auto=format&fit=crop&q=80'}
+                      alt={course.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                    <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-white text-[10px]">
+                      <span className="font-bold px-1.5 py-0.5 rounded bg-black/60 backdrop-blur-sm border border-white/10">
+                        {course.code}
+                      </span>
+                      <span className="flex items-center gap-1 font-mono bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm">
+                        <Clock className="w-3 h-3 text-[#d97746]" />
+                        {course.durationHours || 36}h
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Card Body */}
+                  <div className="p-3.5 flex-1 flex flex-col justify-between space-y-2">
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-bold text-[#d97746] uppercase">
+                          {course.university || course.provider}
+                        </span>
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-muted)]">
+                          {course.difficulty}
+                        </span>
+                      </div>
+
+                      <h3 className="font-bold text-xs text-[var(--text-main)] mt-1 group-hover:text-[#d97746] transition-colors line-clamp-2">
+                        {course.title}
+                      </h3>
+
+                      <p className="text-[11px] text-[var(--text-muted)] mt-0.5 line-clamp-2 leading-relaxed">
+                        {course.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-2 border-t border-[var(--border-color)]/60 flex items-center justify-between text-[11px] text-[var(--text-muted)]">
+                      <span>{course.instructor}</span>
+                      <span className="flex items-center gap-1 text-amber-500 font-bold">
+                        <Star className="w-3 h-3 fill-amber-500" />
+                        {course.rating || 4.9}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
