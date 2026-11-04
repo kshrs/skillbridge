@@ -1241,7 +1241,7 @@ const seed = async () => {
     console.log('[Seed] Created default student Aditya with 365-day heatmap.');
 
     // 3. Create Faculty Mentors with Academic Disciplines
-    const mentors = await User.insertMany([
+    const mentorDefs = [
       {
         name: 'Dr. Aris Thorne',
         email: 'thorne@faculty.edu',
@@ -1370,9 +1370,14 @@ const seed = async () => {
           contactEmail: 'rao@faculty.edu'
         }
       }
-    ]);
+  ];
 
-    console.log(`[Seed] Seeded ${mentors.length} faculty mentors and admins.`);
+    const mentors = [];
+    for (const mDef of mentorDefs) {
+      const createdMentor = await User.create(mDef);
+      mentors.push(createdMentor);
+    }
+    console.log(`[Seed] Seeded ${mentors.length} faculty mentors and admins with hashed passwords.`);
 
     // 4. Enroll Aditya into CS224N and MIT 6.006 with Realistic Progress & Notes
     if (cs224nCourse) {
