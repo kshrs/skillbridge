@@ -50,7 +50,7 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
   const [projectStatus, setProjectStatus] = useState('');
 
   // Dynamic AI Quiz
-  const [generatingQuiz, setGeneratingQuiz] = useState(false);
+  const [generatingQuizModId, setGeneratingQuizModId] = useState(null);
   const [activeQuiz, setActiveQuiz] = useState(null);
   const [quizAnswers, setQuizAnswers] = useState({});
   const [submittingQuiz, setSubmittingQuiz] = useState(false);
@@ -262,8 +262,9 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
   };
 
   const handleGenerateQuiz = async (mod) => {
+    const modId = mod.moduleId || mod.title;
     try {
-      setGeneratingQuiz(true);
+      setGeneratingQuizModId(modId);
       setActiveQuiz(null);
       setQuizResult(null);
       setQuizAnswers({});
@@ -292,7 +293,7 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
     } catch (e) {
       console.error(e);
     } finally {
-      setGeneratingQuiz(false);
+      setGeneratingQuizModId(null);
     }
   };
 
@@ -669,28 +670,28 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
 
               {courseTab === 'quiz' && activeQuiz && (
                 <div className="space-y-4 text-xs pt-1">
-                  <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border)]">
-                    <span className="font-semibold text-[var(--text-primary)] block">{activeQuiz.title}</span>
-                    <span className="text-[11px] text-[var(--text-tertiary)]">{activeQuiz.description}</span>
+                  <div className="p-3.5 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border)] space-y-1">
+                    <span className="font-semibold text-sm text-[var(--text-primary)] block">{activeQuiz.title}</span>
+                    <span className="text-xs text-[var(--text-secondary)] leading-relaxed block">{activeQuiz.description}</span>
                   </div>
 
                   <div className="space-y-3">
                     {activeQuiz.questions.map((q, idx) => (
-                      <div key={q._id || idx} className="p-3 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] space-y-2">
-                        <span className="text-[10px] font-mono text-[var(--text-tertiary)] uppercase">
-                          Question {idx + 1} • {q.type}
+                      <div key={q._id || idx} className="p-3.5 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] space-y-2.5">
+                        <span className="text-[10px] font-mono text-[var(--text-tertiary)] uppercase tracking-wider block">
+                          Question {idx + 1} • {q.type} ({q.points || 25} pts)
                         </span>
-                        <p className="font-medium text-[var(--text-primary)]">{q.question}</p>
+                        <p className="font-semibold text-xs text-[var(--text-primary)] leading-normal">{q.question}</p>
 
                         {q.type === 'mcq' && q.options && (
-                          <div className="space-y-1">
+                          <div className="space-y-1.5 pt-1">
                             {q.options.map((opt, oIdx) => (
                               <label
                                 key={oIdx}
-                                className={`flex items-center gap-2 p-2 rounded border cursor-pointer text-xs ${
+                                className={`flex items-center gap-2.5 p-2.5 rounded-md border cursor-pointer text-xs transition-colors ${
                                   quizAnswers[q._id] === oIdx
-                                    ? 'border-[var(--text-primary)] bg-[var(--bg-subtle)] font-medium'
-                                    : 'border-[var(--border)]'
+                                    ? 'border-[var(--text-primary)] bg-[var(--bg-subtle)] font-medium text-[var(--text-primary)]'
+                                    : 'border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
                                 }`}
                               >
                                 <input
@@ -698,6 +699,7 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
                                   name={`q_${q._id}`}
                                   checked={quizAnswers[q._id] === oIdx}
                                   onChange={() => setQuizAnswers(prev => ({ ...prev, [q._id]: oIdx }))}
+                                  className="accent-[var(--text-primary)]"
                                 />
                                 <span>{opt}</span>
                               </label>
@@ -711,7 +713,7 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
                             value={quizAnswers[q._id] || ''}
                             onChange={(e) => setQuizAnswers(prev => ({ ...prev, [q._id]: e.target.value }))}
                             placeholder="Type conceptual reasoning..."
-                            className="w-full p-2 rounded border border-[var(--border)] bg-[var(--bg-page)] text-xs focus:outline-none"
+                            className="w-full p-2.5 rounded-md border border-[var(--border)] bg-[var(--bg-page)] text-xs focus:outline-none focus:border-[var(--text-primary)]"
                           />
                         )}
 
@@ -720,7 +722,7 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
                             rows={4}
                             value={quizAnswers[q._id] || q.starterCode || ''}
                             onChange={(e) => setQuizAnswers(prev => ({ ...prev, [q._id]: e.target.value }))}
-                            className="w-full p-2 rounded border border-[var(--border)] bg-[#0d0f12] text-emerald-400 font-mono text-xs focus:outline-none"
+                            className="w-full p-2.5 rounded-md border border-[var(--border)] bg-[#0d0f12] text-emerald-400 font-mono text-xs focus:outline-none"
                           />
                         )}
                       </div>
@@ -728,21 +730,26 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
                   </div>
 
                   {!quizResult ? (
-                    <div className="flex justify-end">
+                    <div className="flex justify-end pt-1">
                       <button
                         onClick={handleSubmitQuiz}
                         disabled={submittingQuiz}
-                        className="px-4 py-1.5 rounded bg-[var(--text-primary)] text-[var(--bg-page)] text-xs font-semibold"
+                        className="px-4 py-2 rounded-md bg-[var(--text-primary)] text-[var(--bg-page)] text-xs font-semibold hover:opacity-90 transition-opacity"
                       >
                         {submittingQuiz ? 'Grading...' : 'Submit Answers'}
                       </button>
                     </div>
                   ) : (
-                    <div className="p-3 rounded-lg border border-emerald-500/40 bg-emerald-50 dark:bg-emerald-950/40 text-xs space-y-1">
-                      <span className="font-bold text-emerald-800 dark:text-emerald-300">
-                        Score: {quizResult.totalScore} / {quizResult.maxPossibleScore} ({quizResult.percentage}%)
-                      </span>
-                      <p className="text-[11px] text-[var(--text-secondary)]">{quizResult.overallFeedback}</p>
+                    <div className="p-3.5 rounded-lg border border-[var(--border)] bg-[var(--bg-subtle)] text-xs space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-sm text-[var(--text-primary)]">
+                          Diagnostic Score: {quizResult.totalScore} / {quizResult.maxPossibleScore} ({quizResult.percentage}%)
+                        </span>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold ${quizResult.passed ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'}`}>
+                          {quizResult.passed ? 'Passed' : 'Needs Review'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{quizResult.overallFeedback}</p>
                     </div>
                   )}
                 </div>
@@ -763,11 +770,11 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
                     <span className="text-xs font-medium text-[var(--text-primary)] truncate">{mod.title}</span>
                     <button
                       onClick={() => handleGenerateQuiz(mod)}
-                      disabled={generatingQuiz}
-                      className="px-2 py-0.5 rounded border border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/30 text-[9px] font-mono text-blue-600 dark:text-blue-400 hover:bg-blue-100/50 dark:hover:bg-blue-900/50 shrink-0 font-medium transition-colors"
-                      title="Generate AI Comprehension Quiz using Gemini Flash"
+                      disabled={generatingQuizModId !== null}
+                      className="px-2 py-0.5 rounded border border-[var(--border)] bg-[var(--bg-subtle)] text-[10px] font-mono text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border)] shrink-0 transition-colors"
+                      title="Self-evaluation module quiz"
                     >
-                      {generatingQuiz ? 'Generating...' : '✨ AI Quiz'}
+                      {generatingQuizModId === (mod.moduleId || mod.title) ? 'Generating...' : 'AI Quiz'}
                     </button>
                   </div>
 
