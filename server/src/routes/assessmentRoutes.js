@@ -5,6 +5,78 @@ const AssessmentResult = require('../models/AssessmentResult');
 const User = require('../models/User');
 const { verifyToken, protect, staffOnly } = require('../middleware/auth');
 
+// GET /api/assessments/history (Student's complete assessment tracking, scores & AI advice)
+router.post('/history', protect, async (req, res) => {
+  // Alias for POST if requested
+  return getHistoryHandler(req, res);
+});
+
+router.get('/history', protect, async (req, res) => {
+  return getHistoryHandler(req, res);
+});
+
+const getHistoryHandler = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { category, courseId, limit = 50 } = req.query;
+
+    const query = { user: userId };
+
+    const results = await AssessmentResult.find(query)
+      .populate({
+        path: 'assessment',
+        select: 'title description skill category courseId moduleId passingScore timeLimitMinutes',
+        populate: {
+          path: 'courseId',
+          select: 'title code university'
+        }
+      })
+      .sort({ createdAt: -1 })
+      .limit(Number(limit));
+
+    // Optional category filter on populated field
+    const filtered = category
+      ? results.filter(r => r.assessment && r.assessment.category === category)
+      : results;
+
+    const history = filtered.map(r => ({
+      resultId: r._id,
+      assessmentId: r.assessment?._id,
+      title: r.assessment?.title || 'Diagnostic Assessment',
+      category: r.assessment?.category || 'general',
+      skill: r.assessment?.skill || '',
+      courseTitle: r.assessment?.courseId?.title || null,
+      courseCode: r.assessment?.courseId?.code || null,
+      moduleId: r.assessment?.moduleId || null,
+      totalScore: r.totalScore,
+      maxScore: r.maxScore,
+      percentage: r.percentage,
+      passed: r.passed,
+      timeSpentSeconds: r.timeSpentSeconds,
+      completedAt: r.completedAt || r.createdAt,
+      overallFeedback: r.overallFeedback || (r.passed ? 'Demonstrated strong conceptual understanding.' : 'Review recommended before retaking.'),
+      nextSteps: (r.nextSteps && r.nextSteps.length > 0) ? r.nextSteps : [
+        r.passed ? 'Proceed to the next module in this course.' : 'Review the lecture recordings in this module.',
+        r.passed ? 'Register a project artifact in the Project Registry.' : 'Review explanations on missed questions.'
+      ],
+      answersSummary: (r.answers || []).map(a => ({
+        questionId: a.questionId,
+        isCorrect: a.isCorrect,
+        scoreAwarded: a.scoreAwarded,
+        feedback: a.feedback
+      }))
+    }));
+
+    res.json({
+      success: true,
+      count: history.length,
+      history
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // GET /api/assessments (cohort filtered or all for staff)
 router.get('/', async (req, res) => {
   try {
@@ -205,6 +277,8 @@ router.post('/:id/submit', protect, async (req, res) => {
       maxScore,
       percentage,
       passed,
+      overallFeedback,
+      nextSteps,
       verificationGranted: passed,
       timeSpentSeconds
     });

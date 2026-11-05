@@ -16,6 +16,8 @@ const AssessmentResultSchema = new mongoose.Schema({
   maxScore: { type: Number, required: true },
   percentage: { type: Number, required: true },
   passed: { type: Boolean, required: true },
+  overallFeedback: { type: String, default: '' },
+  nextSteps: [{ type: String }],
   verificationGranted: { type: Boolean, default: false },
   timeSpentSeconds: { type: Number, default: 0 },
   completedAt: { type: Date, default: Date.now }
