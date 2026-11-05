@@ -62,7 +62,7 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
 
       if (cRes.ok) {
         const cData = await cRes.json();
-        setCourses(cData.courses || []);
+        setCourses(Array.isArray(cData) ? cData : (cData.courses || []));
       }
 
       if (eRes && eRes.ok) {
@@ -266,23 +266,26 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
   };
 
   const filteredCourses = courses.filter(c => {
+    const univ = c.university || c.institution || '';
     const matchesSearch = !search || 
       c.title.toLowerCase().includes(search.toLowerCase()) ||
       c.code.toLowerCase().includes(search.toLowerCase()) ||
-      c.instructor.toLowerCase().includes(search.toLowerCase());
+      (c.instructor && c.instructor.toLowerCase().includes(search.toLowerCase()));
 
-    const matchesUniv = selectedUniv === 'All' || c.university?.includes(selectedUniv);
+    const matchesUniv = selectedUniv === 'All' || univ.toLowerCase().includes(selectedUniv.toLowerCase());
     return matchesSearch && matchesUniv;
   });
 
-  const universities = ['All', 'Stanford Online', 'MIT OpenCourseWare', 'Harvard University', 'UC Berkeley', 'University of Helsinki'];
+  const universities = ['All', 'Stanford', 'MIT', 'Harvard', 'UC Berkeley', 'CMU', 'Georgia Tech'];
 
   // Detail View of Course
   if (selectedCourse) {
     const isEnrolled = !!enrollment;
-    const progress = enrollment?.progress || 0;
+    const progress = enrollment?.progressPercentage || enrollment?.progress || 0;
     const completedLectures = enrollment?.completedLectures || [];
-    const currentLecture = selectedLecture || selectedCourse.modules?.[0]?.lectures?.[0];
+    const firstLecture = selectedCourse.modules?.[0]?.lectures?.[0];
+    const currentLecture = selectedLecture || firstLecture;
+    const currentVideoId = currentLecture?.youtubeVideoId || currentLecture?.youtubeId;
 
     return (
       <div className="max-w-5xl mx-auto space-y-6 animate-fadeIn py-4">
@@ -334,9 +337,9 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
           {/* Main Video & Module Tabs (8 cols) */}
           <div className="lg:col-span-8 space-y-4">
             <div className="aspect-video w-full rounded-xl overflow-hidden bg-black border border-[var(--border)] relative">
-              {currentLecture ? (
+              {currentLecture && currentVideoId ? (
                 <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${currentLecture.youtubeVideoId}?autoplay=0&enablejsapi=1&rel=0`}
+                  src={`https://www.youtube-nocookie.com/embed/${currentVideoId}?autoplay=0&enablejsapi=1&rel=0`}
                   title={currentLecture.title}
                   className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

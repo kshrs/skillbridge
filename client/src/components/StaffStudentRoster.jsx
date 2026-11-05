@@ -15,8 +15,10 @@ import {
   CheckCircle,
   Activity,
   Flame,
-  ArrowUpDown
+  ArrowUpDown,
+  Maximize2
 } from 'lucide-react';
+import { StudentProfileModal } from './StudentProfileModal';
 
 export function StaffStudentRoster({ token, onSelectStudentForChat }) {
   const [students, setStudents] = useState([]);
@@ -27,6 +29,7 @@ export function StaffStudentRoster({ token, onSelectStudentForChat }) {
   const [selectedStudentId, setSelectedStudentId] = useState(null);
   const [detailedStudent, setDetailedStudent] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [fullModalStudentId, setFullModalStudentId] = useState(null);
 
   useEffect(() => {
     fetchStudents();
@@ -138,11 +141,11 @@ export function StaffStudentRoster({ token, onSelectStudentForChat }) {
                 return (
                   <div
                     key={student._id}
-                    onClick={() => handleInspectStudent(student._id)}
-                    className={`p-4 rounded-lg border text-xs cursor-pointer transition-all ${
+                    onClick={() => setFullModalStudentId(student._id)}
+                    className={`p-4 rounded-lg border text-xs cursor-pointer transition-all hover:shadow-md ${
                       isSelected
                         ? 'border-blue-500 bg-blue-500/5 shadow-sm'
-                        : 'border-[var(--border)] bg-[var(--bg-page)] hover:border-neutral-400'
+                        : 'border-[var(--border)] bg-[var(--bg-page)] hover:border-blue-500/60'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -151,7 +154,7 @@ export function StaffStudentRoster({ token, onSelectStudentForChat }) {
                           {student.name.slice(0, 2).toUpperCase()}
                         </div>
                         <div>
-                          <h4 className="font-semibold text-[var(--text-primary)] flex items-center gap-1.5">
+                          <h4 className="font-semibold text-[var(--text-primary)] flex items-center gap-1.5 hover:text-blue-600 transition-colors">
                             <span>{student.name}</span>
                             <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[var(--bg-subtle)] border border-[var(--border)] text-[var(--text-secondary)]">
                               {student.academicProfile?.rollNumber || 'N/A'}
@@ -163,14 +166,28 @@ export function StaffStudentRoster({ token, onSelectStudentForChat }) {
                         </div>
                       </div>
 
-                      <div className="text-right shrink-0">
-                        <div className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-xs">
-                          {student.academicProfile?.cgpa ? `${student.academicProfile.cgpa} CGPA` : 'N/A'}
+                      <div className="flex items-center gap-2">
+                        <div className="text-right shrink-0">
+                          <div className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-xs">
+                            {student.academicProfile?.cgpa ? `${student.academicProfile.cgpa} CGPA` : 'N/A'}
+                          </div>
+                          <div className="text-[10px] text-[var(--text-tertiary)] flex items-center gap-1 justify-end">
+                            <Flame className="w-2.5 h-2.5 text-amber-500" />
+                            <span>{activityCount} acts</span>
+                          </div>
                         </div>
-                        <div className="text-[10px] text-[var(--text-tertiary)] flex items-center gap-1 justify-end">
-                          <Flame className="w-2.5 h-2.5 text-amber-500" />
-                          <span>{activityCount} acts</span>
-                        </div>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFullModalStudentId(student._id);
+                          }}
+                          className="p-1.5 rounded-md hover:bg-[var(--bg-subtle)] text-[var(--text-tertiary)] hover:text-blue-500 transition-colors"
+                          title="Open Full Student Profile Portfolio"
+                        >
+                          <Maximize2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
 
@@ -356,6 +373,16 @@ export function StaffStudentRoster({ token, onSelectStudentForChat }) {
           </div>
         )}
       </div>
+
+      {/* Full Modal Dossier */}
+      {fullModalStudentId && (
+        <StudentProfileModal
+          studentId={fullModalStudentId}
+          token={token}
+          onClose={() => setFullModalStudentId(null)}
+          onOpenChat={onSelectStudentForChat}
+        />
+      )}
     </div>
   );
 }
