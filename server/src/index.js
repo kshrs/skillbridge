@@ -54,6 +54,12 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: err.message || 'Internal Server Error' });
 });
 
-app.listen(PORT, () => {
-  console.log(`[SkillBridge Backend] Server running on port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`[SkillBridge Backend] Server running on port ${PORT}`);
+  });
+}
+
+module.exports = app;
+
+
