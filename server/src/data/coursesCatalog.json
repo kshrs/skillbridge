@@ -1,0 +1,1340 @@
+[
+  {
+    "code": "STANFORD-CS224N",
+    "description": "Comprehensive graduate course on deep learning approaches to natural language processing, word vectors, attention mechanisms, transformers, and large language models.",
+    "institution": "Stanford University",
+    "instructor": "Prof. Christopher Manning",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "mod-1",
+        "title": "Foundations: Word Embeddings & Language Modeling",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Introduction and Word Vectors (Word2Vec & Skip-gram)",
+            "youtubeId": "rmVRLeJRkl4",
+            "duration": "82m",
+            "readingNotes": "Study Mikolov et al. (2013) on Distributed Representations of Words.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "Neural Classifiers and Word Window Models",
+            "youtubeId": "gqaHkPEZAew",
+            "duration": "76m",
+            "readingNotes": "Review Cross-Entropy Loss derivation and Backpropagation over matrix Jacobians.",
+            "slidesUrl": ""
+          }
+        ]
+      },
+      {
+        "moduleId": "mod-2",
+        "title": "Recurrence to Attention & Transformer Architectures",
+        "lectures": [
+          {
+            "lectureNumber": 3,
+            "title": "Recurrent Neural Networks (RNNs) and Language Models",
+            "youtubeId": "0LixF202Foc",
+            "duration": "79m",
+            "readingNotes": "Exploding and vanishing gradient solutions: LSTMs and GRUs.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 4,
+            "title": "Self-Attention and the Transformer Architecture",
+            "youtubeId": "ptoG_AasdBg",
+            "duration": "84m",
+            "readingNotes": "Vaswani et al. (2017) \"Attention Is All You Need\" thorough review.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "PyTorch",
+      "Transformers & NLP",
+      "Deep Learning",
+      "Attention Mechanisms",
+      "Vector Databases"
+    ],
+    "term": "Winter 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60",
+    "title": "CS224N: Natural Language Processing with Deep Learning"
+  },
+  {
+    "code": "MIT-6.824",
+    "description": "MIT flagship systems engineering course covering distributed consensus (Raft, Paxos), primary-backup replication, fault tolerance, RPCs, and consistency models.",
+    "institution": "MIT OpenCourseWare",
+    "instructor": "Prof. Robert Morris",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "mod-1",
+        "title": "RPCs, Concurrency & Primary-Backup Replication",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Introduction to Distributed Systems Infrastructure",
+            "youtubeId": "cQP8WApzIQQ",
+            "duration": "80m",
+            "readingNotes": "Understand race conditions, RPC sematics at-least-once vs at-most-once.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "RPC and Threads in Go",
+            "youtubeId": "gA4yxNYsv4E",
+            "duration": "75m",
+            "readingNotes": "Go channels, sync.Mutex, and condition variables in network daemons.",
+            "slidesUrl": ""
+          }
+        ]
+      },
+      {
+        "moduleId": "mod-2",
+        "title": "Consensus Protocols: Raft Invariants",
+        "lectures": [
+          {
+            "lectureNumber": 3,
+            "title": "The Raft Consensus Algorithm (Part 1: Leader Election)",
+            "youtubeId": "R2-9bsKmvdQ",
+            "duration": "82m",
+            "readingNotes": "Study Ongaro & Ousterhout (2014) \"In Search of an Understandable Consensus Algorithm\".",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 4,
+            "title": "Raft Log Replication and Safety Invariants (Part 2)",
+            "youtubeId": "uXEPyTrJy1w",
+            "duration": "85m",
+            "readingNotes": "Review the Raft state machine safety invariant and commit rules.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Distributed Systems",
+      "Go",
+      "Consensus Algorithms",
+      "Fault Tolerance",
+      "gRPC & Protobuf"
+    ],
+    "term": "Spring 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=60",
+    "title": "6.824: Distributed Systems"
+  },
+  {
+    "code": "UCB-CS162",
+    "description": "Comprehensive study of operating systems internals, memory virtualization, POSIX synchronization, paging, and kernel scheduling.",
+    "institution": "UC Berkeley",
+    "instructor": "Prof. John Kubiatowicz",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "mod-1",
+        "title": "Processes, Threads & Concurrency Primitives",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Operating System Abstractions & Hardware Protections",
+            "youtubeId": "2bT_XoZ_XnE",
+            "duration": "78m",
+            "readingNotes": "Dual-mode CPU operation, trap handlers, and context switching overhead.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "C++",
+      "Operating Systems",
+      "Linux Internals",
+      "Virtual Memory",
+      "Multithreading"
+    ],
+    "term": "Fall 2023",
+    "thumbnail": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=60",
+    "title": "CS 162: Operating Systems and Systems Programming"
+  },
+  {
+    "code": "CS224N",
+    "description": "Premier university lecture series covering word embeddings, transformer architectures, self-attention, and large language models (LLMs).",
+    "institution": "Stanford Online",
+    "instructor": "Prof. Christopher Manning",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "cs224n-m1",
+        "title": "Word Vectors, SVD, and Word2Vec",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 1: Introduction and Word Vectors",
+            "youtubeId": "rmVRLeJRkl4",
+            "duration": "80m",
+            "readingNotes": "Deep dive into distributional semantics and word vector objective functions.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "Lecture 2: Neural Classifiers & Backpropagation",
+            "youtubeId": "gqaHkPEZAew",
+            "duration": "82m",
+            "readingNotes": "Cross-entropy loss, gradient descent, and computational graphs for text classification.",
+            "slidesUrl": ""
+          }
+        ]
+      },
+      {
+        "moduleId": "cs224n-m2",
+        "title": "Recurrent Neural Networks and Language Models",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 6: Simple and LSTM RNNs",
+            "youtubeId": "0LixOH96snY",
+            "duration": "78m",
+            "readingNotes": "How gated recurrent units and cell memory gates solve temporal degradation.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "Lecture 7: Translation, Seq2Seq, and Attention",
+            "youtubeId": "XXtpJxZBa2c",
+            "duration": "85m",
+            "readingNotes": "Bahdanau additive attention and scaled dot-product attention architectures.",
+            "slidesUrl": ""
+          }
+        ]
+      },
+      {
+        "moduleId": "cs224n-m3",
+        "title": "Transformers, Self-Attention, and Pre-trained LLMs",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 9: Transformers and Large Language Models",
+            "youtubeId": "ptuGllU5SQQ",
+            "duration": "84m",
+            "readingNotes": "The Transformer architecture (Vaswani et al.) and pre-training objectives.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Natural Language Processing",
+      "PyTorch",
+      "Transformers",
+      "Self-Attention",
+      "Hugging Face",
+      "Word2Vec"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&auto=format&fit=crop&q=80",
+    "title": "CS224N: Natural Language Processing with Deep Learning"
+  },
+  {
+    "code": "CS229",
+    "description": "The definitive foundational machine learning course covering supervised learning, SVMs, kernels, neural networks, unsupervised clustering, and learning theory.",
+    "institution": "Stanford Online",
+    "instructor": "Prof. Andrew Ng",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "cs229-m1",
+        "title": "Supervised Learning & Linear Regression",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 1: Introduction and Course Logistics",
+            "youtubeId": "jGwO_UgTS7I",
+            "duration": "77m",
+            "readingNotes": "Supervised vs. unsupervised paradigms and linear model formulation.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "Lecture 2: Linear Regression and Gradient Descent",
+            "youtubeId": "4b4MUYve_U8",
+            "duration": "80m",
+            "readingNotes": "Mathematical derivation of MSE minimization and stochastic updates.",
+            "slidesUrl": ""
+          }
+        ]
+      },
+      {
+        "moduleId": "cs229-m2",
+        "title": "Support Vector Machines & Kernel Methods",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 6: Support Vector Machines & Duality",
+            "youtubeId": "lDwow4aOrtg",
+            "duration": "79m",
+            "readingNotes": "Maximum margin hyperplanes and dual optimization formulations.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Machine Learning",
+      "Linear Algebra",
+      "Gradient Descent",
+      "SVM",
+      "Logistic Regression",
+      "PCA"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&auto=format&fit=crop&q=80",
+    "title": "CS229: Machine Learning"
+  },
+  {
+    "code": "CS231N",
+    "description": "Image classification, convolutional architectures (AlexNet, VGG, ResNet), object detection, and generative vision models.",
+    "institution": "Stanford Online",
+    "instructor": "Prof. Fei-Fei Li & Justin Johnson",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "cs231n-m1",
+        "title": "Image Classification Pipeline & ConvNets",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 1: Introduction to Computer Vision",
+            "youtubeId": "vT1JzLTH4G4",
+            "duration": "70m",
+            "readingNotes": "Historical overview of visual recognition from block worlds to deep learning.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "Lecture 5: Convolutional Neural Networks",
+            "youtubeId": "bNb2fEVKeEo",
+            "duration": "78m",
+            "readingNotes": "Kernel convolutions, stride, padding, and feature map dimensions.",
+            "slidesUrl": ""
+          }
+        ]
+      },
+      {
+        "moduleId": "cs231n-m2",
+        "title": "Training Networks & Deep Recognition",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 7: Training Neural Networks II",
+            "youtubeId": "u6aEYuemt0M",
+            "duration": "80m",
+            "readingNotes": "Weight initialization, learning rate annealing, and hyperparameter search.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "Lecture 9: Spatial Detection and Region Proposals",
+            "youtubeId": "d14Q7f04N3o",
+            "duration": "85m",
+            "readingNotes": "Faster R-CNN, anchor bounding boxes, and Feature Pyramid Networks.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Computer Vision",
+      "Convolutional Networks",
+      "ResNet",
+      "Object Detection",
+      "PyTorch"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1507146426996-ef05306b995a?w=800&auto=format&fit=crop&q=80",
+    "title": "CS231N: Deep Learning for Computer Vision"
+  },
+  {
+    "code": "CS234",
+    "description": "Markov decision processes, value iteration, policy gradients, deep Q-networks (DQN), and actor-critic methods.",
+    "institution": "Stanford Online",
+    "instructor": "Prof. Emma Brunskill",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "cs234-m1",
+        "title": "MDPs & Dynamic Programming",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 1: Introduction to Reinforcement Learning",
+            "youtubeId": "FgzM3zpZ55o",
+            "duration": "72m",
+            "readingNotes": "Exploration vs. exploitation, agent-environment loop, and reward hypotheses.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "Lecture 2: Given an MDP, What Can We Do?",
+            "youtubeId": "9g32v7vzk24",
+            "duration": "75m",
+            "readingNotes": "Exact dynamic programming methods, contraction mapping theorem, and value convergence.",
+            "slidesUrl": ""
+          }
+        ]
+      },
+      {
+        "moduleId": "cs234-m2",
+        "title": "Model-Free Control & Deep Q-Learning",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 4: Model-Free Control & Temporal Difference",
+            "youtubeId": "_n8d5GZ4t1w",
+            "duration": "77m",
+            "readingNotes": "TD(0), on-policy vs off-policy algorithms, and epsilon-greedy exploration bounds.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Reinforcement Learning",
+      "Markov Decision Processes",
+      "Q-Learning",
+      "Policy Gradients"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80",
+    "title": "CS234: Reinforcement Learning"
+  },
+  {
+    "code": "CS25",
+    "description": "In-depth seminar series examining modern applications of Transformers across language, vision, robotics, biology, and multimodal AI.",
+    "institution": "Stanford Online",
+    "instructor": "Stanford AI Lab Guest Seminars",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "cs25-m1",
+        "title": "Modern Transformer Breakthroughs",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "CS25 Lecture 1: Attention is All You Need",
+            "youtubeId": "XfpMkf4rD6E",
+            "duration": "75m",
+            "readingNotes": "Dissecting self-attention mechanics and cross-domain scalability.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "CS25 Lecture 2: Vision Transformers (ViT) & Multimodal AI",
+            "youtubeId": "g2brErS20U8",
+            "duration": "80m",
+            "readingNotes": "Patch tokenization, linear projection, and cross-attention architectures.",
+            "slidesUrl": ""
+          }
+        ]
+      },
+      {
+        "moduleId": "cs25-m2",
+        "title": "Scaling Laws & Code Generation Models",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "CS25 Lecture 3: Transformers for Code and Logic",
+            "youtubeId": "Zv3pC71_K2M",
+            "duration": "78m",
+            "readingNotes": "Abstract syntax tree parsing with transformer attention mechanisms.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Transformers",
+      "LLM Architectures",
+      "Diffusion Models",
+      "Multimodal AI"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80",
+    "title": "CS25: Transformers United"
+  },
+  {
+    "code": "6.006",
+    "description": "Mathematical algorithmic analysis, sorting (Merge, Heap), binary search trees, AVL trees, hashing, graph search (BFS, DFS, Dijkstra), and dynamic programming.",
+    "institution": "MIT OpenCourseWare",
+    "instructor": "Prof. Erik Demaine & Prof. Srini Devadas",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "mit-6006-m1",
+        "title": "Algorithmic Thinking & Peak Finding",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 1: Algorithmic Thinking, Peak Finding",
+            "youtubeId": "HtSuA80QTyo",
+            "duration": "53m",
+            "readingNotes": "Comparing O(n) linear scan vs. O(log n) divide-and-conquer on 2D arrays.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "Lecture 2: Models of Computation, Document Distance",
+            "youtubeId": "Zc54gFhdpLA",
+            "duration": "50m",
+            "readingNotes": "Word frequency histograms and dot product distance in Python.",
+            "slidesUrl": ""
+          }
+        ]
+      },
+      {
+        "moduleId": "mit-6006-m2",
+        "title": "Graph Traversal & Shortest Paths",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 13: Breadth-First Search (BFS)",
+            "youtubeId": "s-CYnVz-uh4",
+            "duration": "52m",
+            "readingNotes": "Queue-based shortest path search on unweighted graphs.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "Lecture 16: Dijkstra",
+            "youtubeId": "2E7MmKv0Y24",
+            "duration": "54m",
+            "readingNotes": "Priority queues and relaxation steps on positive edge-weighted graphs.",
+            "slidesUrl": ""
+          }
+        ]
+      },
+      {
+        "moduleId": "mit-6006-m3",
+        "title": "Dynamic Programming Foundations",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 19: Dynamic Programming I: Fibonacci, Shortest Paths",
+            "youtubeId": "OQ5jsbhAv_M",
+            "duration": "53m",
+            "readingNotes": "Decomposing optimal substructure into memoized subproblem DAGs.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Data Structures",
+      "Algorithms",
+      "Dynamic Programming",
+      "Graph Theory",
+      "Asymptotic Analysis",
+      "Python"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1516116211227-bbc04f141446?w=800&auto=format&fit=crop&q=80",
+    "title": "6.006: Introduction to Algorithms"
+  },
+  {
+    "code": "6.S191",
+    "description": "MIT premier official introductory course on deep learning methods and applications in NLP, vision, biology, robotics, and generative AI.",
+    "institution": "MIT",
+    "instructor": "Alexander Amini & Ava Soleimany",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "mit-6s191-m1",
+        "title": "Deep Learning Foundations & Perceptrons",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 1: Intro to Deep Learning (2024)",
+            "youtubeId": "7sB052Pz0s8",
+            "duration": "50m",
+            "readingNotes": "Foundations of artificial neural networks and optimization landscapes.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "Lecture 2: Recurrent Neural Networks, Transformers & Attention",
+            "youtubeId": "ySEx_Bqxvpg",
+            "duration": "48m",
+            "readingNotes": "Sequential memory processing and the transition to self-attention.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Deep Learning",
+      "Neural Networks",
+      "TensorFlow",
+      "PyTorch",
+      "Generative AI"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80",
+    "title": "6.S191: Introduction to Deep Learning"
+  },
+  {
+    "code": "18.06",
+    "description": "The legendary linear algebra lecture series. Matrix arithmetic, vector spaces, nullspace, eigenvalues, eigenvectors, and singular value decomposition (SVD).",
+    "institution": "MIT OpenCourseWare",
+    "instructor": "Prof. Gilbert Strang",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "mit-1806-m1",
+        "title": "The Geometry of Linear Equations & Four Subspaces",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 1: The Geometry of Linear Equations",
+            "youtubeId": "7UJ4CFRGd-U",
+            "duration": "40m",
+            "readingNotes": "Row versus column representation of linear systems of equations.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "Lecture 29: Singular Value Decomposition (SVD)",
+            "youtubeId": "Nx0lRdfU1_A",
+            "duration": "45m",
+            "readingNotes": "Factorization A = U Sigma V^T and its geometric transformation.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Linear Algebra",
+      "Eigenvalues",
+      "Singular Value Decomposition",
+      "Matrix Factorization"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&auto=format&fit=crop&q=80",
+    "title": "18.06: Linear Algebra with Gilbert Strang"
+  },
+  {
+    "code": "6.0001",
+    "description": "Foundations of computational thinking, Python semantics, branching, iteration, functions, recursion, OOP, and computational complexity.",
+    "institution": "MIT OpenCourseWare",
+    "instructor": "Prof. Eric Grimson & Dr. Ana Bell",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "mit-60001-m1",
+        "title": "Computation & Branching in Python",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 1: What is Computation?",
+            "youtubeId": "nykOeWgQcHM",
+            "duration": "52m",
+            "readingNotes": "Von Neumann architectures, declarative vs imperative knowledge, Python syntax.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Python",
+      "Computational Thinking",
+      "Object-Oriented Programming",
+      "Recursion"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&auto=format&fit=crop&q=80",
+    "title": "6.0001: Introduction to Computer Science and Programming in Python"
+  },
+  {
+    "code": "6.046J",
+    "description": "Advanced algorithm techniques: randomized algorithms, amortization, divide and conquer recurrences, min-cut, and NP-completeness.",
+    "institution": "MIT OpenCourseWare",
+    "instructor": "Prof. Erik Demaine & Prof. Srini Devadas",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "mit-6046-m1",
+        "title": "Divide and Conquer & Strassen Matrix Multiplication",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 1: Course Overview, Interval Scheduling",
+            "youtubeId": "2rkq991o7hE",
+            "duration": "53m",
+            "readingNotes": "Greedy algorithms, exchange arguments, and optimal scheduling.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Advanced Algorithms",
+      "Randomized Algorithms",
+      "Amortized Analysis",
+      "NP-Completeness"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&auto=format&fit=crop&q=80",
+    "title": "6.046J: Design and Analysis of Algorithms"
+  },
+  {
+    "code": "6.004",
+    "description": "Digital logic, gate-level architecture, RISC instruction sets, pipelining, cache memory hierarchies, and virtual memory.",
+    "institution": "MIT OpenCourseWare",
+    "instructor": "Prof. Chris Terman",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "mit-6004-m1",
+        "title": "Digital Circuits & ALU Design",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 1: The Digital Abstraction",
+            "youtubeId": "1iT_Z_O3eQc",
+            "duration": "50m",
+            "readingNotes": "Voltage thresholds, noise margins, and Boolean algebra foundations.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Computer Architecture",
+      "RISC-V",
+      "Pipelining",
+      "Memory Hierarchy",
+      "Caches"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=800&auto=format&fit=crop&q=80",
+    "title": "6.004: Computation Structures"
+  },
+  {
+    "code": "CS50x",
+    "description": "The world-renowned introduction to computer science and programming using C, Python, SQL, and Web.",
+    "institution": "Harvard University",
+    "instructor": "Prof. David J. Malan",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "cs50-m1",
+        "title": "Computational Thinking & C Language",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "CS50 2024 - Lecture 0: Computational Thinking & Scratch",
+            "youtubeId": "4AopTj3vT0c",
+            "duration": "87m",
+            "readingNotes": "Binary, algorithms, pseudocode, and problem decomposition.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "CS50 2024 - Lecture 1: C Programming Language",
+            "youtubeId": "F9-yqOOqbyE",
+            "duration": "85m",
+            "readingNotes": "Data types, format specifiers, operators, and functions in C.",
+            "slidesUrl": ""
+          }
+        ]
+      },
+      {
+        "moduleId": "cs50-m2",
+        "title": "Memory, Pointers & Data Structures",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "CS50 2024 - Lecture 4: Memory and Pointers",
+            "youtubeId": "F9-yqOOqbyE",
+            "duration": "90m",
+            "readingNotes": "Hexadecimal, memory layout, addresses, malloc, free, and valgrind.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "CS50 2024 - Lecture 5: Data Structures in C",
+            "youtubeId": "YoXxevCrbNw",
+            "duration": "88m",
+            "readingNotes": "Custom structs, self-referential pointers, linked list traversal, and BST insertion.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "C",
+      "Memory Management",
+      "Pointers",
+      "Data Structures",
+      "Python",
+      "SQL",
+      "Algorithms"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80",
+    "title": "CS50x: Introduction to Computer Science"
+  },
+  {
+    "code": "CS50W",
+    "description": "Full-stack application engineering using Django, JavaScript, REST APIs, Git, database schemas, responsive UI, and CI/CD pipelines.",
+    "institution": "Harvard University",
+    "instructor": "Brian Yu & Prof. David J. Malan",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "cs50w-m1",
+        "title": "Django, Models, and Migrations",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "CS50W - Lecture 3: Django & Web Architecture",
+            "youtubeId": "w8q0C-C1js4",
+            "duration": "82m",
+            "readingNotes": "Routes, views, templates, and model-view-controller patterns in Python.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Django",
+      "Python",
+      "JavaScript",
+      "REST APIs",
+      "SQL",
+      "Git",
+      "HTML5 & CSS3"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&auto=format&fit=crop&q=80",
+    "title": "CS50W: Web Programming with Python and JavaScript"
+  },
+  {
+    "code": "CS50AI",
+    "description": "Graph search algorithms, minimax, constraint satisfaction, propositional logic, Bayesian networks, Markov models, and deep learning.",
+    "institution": "Harvard University",
+    "instructor": "Brian Yu & Prof. David J. Malan",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "cs50ai-m1",
+        "title": "Search Algorithms & Adversarial Games",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "CS50 AI - Lecture 0: Search",
+            "youtubeId": "WbzNPA3dUv8",
+            "duration": "80m",
+            "readingNotes": "State space representation, frontiers, and optimal heuristic cost estimation.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Artificial Intelligence",
+      "Minimax",
+      "Knowledge Graphs",
+      "Probabilistic Reasoning",
+      "Python"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1534723328310-e82dad3ee43f?w=800&auto=format&fit=crop&q=80",
+    "title": "CS50AI: Introduction to Artificial Intelligence with Python"
+  },
+  {
+    "code": "CS61A",
+    "description": "Functional programming, higher-order functions, recursion, lambda expressions, interpreters, streams, and software architecture.",
+    "institution": "UC Berkeley",
+    "instructor": "Prof. John DeNero",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "ucb-61a-m1",
+        "title": "Functions & Higher-Order Abstractions",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "CS 61A: Welcome & Higher Order Functions",
+            "youtubeId": "Sg48y9h6WpI",
+            "duration": "50m",
+            "readingNotes": "Functions as arguments and return values in clean computational models.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Functional Programming",
+      "Python",
+      "Scheme",
+      "Recursion",
+      "Interpreters"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=800&auto=format&fit=crop&q=80",
+    "title": "CS 61A: Structure and Interpretation of Computer Programs"
+  },
+  {
+    "code": "CS61B",
+    "description": "Object-oriented programming in Java, abstract data types, balanced search trees (Red-Black / 2-3 Trees), heaps, graphs, and sorting.",
+    "institution": "UC Berkeley",
+    "instructor": "Prof. Josh Hug",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "ucb-61b-m1",
+        "title": "Lists, Trees & Balanced Data Structures",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "CS 61B: Introduction to Java and Data Structures",
+            "youtubeId": "B31LgI4Y4DQ",
+            "duration": "52m",
+            "readingNotes": "Java typing system, pointers, and memory layout.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Java",
+      "Data Structures",
+      "Red-Black Trees",
+      "Graph Algorithms",
+      "Asymptotic Complexity"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80",
+    "title": "CS 61B: Data Structures & Algorithms"
+  },
+  {
+    "code": "CS61C",
+    "description": "C programming, RISC-V assembly, parallelism, caching, memory-mapped I/O, pipelining, and datacenter scale computing.",
+    "institution": "UC Berkeley",
+    "instructor": "Prof. Dan Garcia & Prof. Borivoje Nikolic",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "ucb-61c-m1",
+        "title": "C, Pointers & Memory Management",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "CS 61C: Introduction to Computer Architecture",
+            "youtubeId": "3U824Wc2tX0",
+            "duration": "53m",
+            "readingNotes": "The 6 great ideas in computer architecture and Moore Law dynamics.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "C",
+      "RISC-V",
+      "Assembly",
+      "Parallelism",
+      "OpenMP",
+      "Computer Architecture"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80",
+    "title": "CS 61C: Great Ideas in Computer Architecture"
+  },
+  {
+    "code": "CS106B",
+    "description": "Advanced data structures, recursive backtracking, object-oriented design, Big-O complexity, and memory management in modern C++.",
+    "institution": "Stanford Online",
+    "instructor": "Prof. Julie Zelenski",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "cs106b-m1",
+        "title": "C++ Collections & Recursion",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "CS106B: Lecture 1 - Programming Abstractions in C++",
+            "youtubeId": "uX2sP9VkvG8",
+            "duration": "50m",
+            "readingNotes": "Transitioning to systems-level C++ paradigms.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "C++",
+      "Recursive Backtracking",
+      "Pointers",
+      "Data Structures",
+      "OOP"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&auto=format&fit=crop&q=80",
+    "title": "CS106B: Programming Abstractions in C++"
+  },
+  {
+    "code": "CS149",
+    "description": "Hardware multi-threading, SIMD execution, GPU programming with CUDA, cache coherence, and parallel algorithmic patterns.",
+    "institution": "Stanford Online",
+    "instructor": "Prof. Kayvon Fatahalian",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "cs149-m1",
+        "title": "Multi-Core Architectures & CUDA Programming",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "CS149: Lecture 1 - Why Parallelism Matters",
+            "youtubeId": "u4r7p33hK-4",
+            "duration": "53m",
+            "readingNotes": "Power wall, multi-core scaling, and modern GPU architectures.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "CUDA",
+      "Parallel Computing",
+      "GPU Programming",
+      "C++",
+      "Multithreading"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1591488320449-011701bb6704?w=800&auto=format&fit=crop&q=80",
+    "title": "CS149: Parallel Computing"
+  },
+  {
+    "code": "CS221",
+    "description": "Search algorithms, constraint satisfaction, Markov networks, Bayesian inference, reinforcement learning, and logic reasoning systems.",
+    "institution": "Stanford Online",
+    "instructor": "Prof. Percy Liang",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "cs221-m1",
+        "title": "Search & Constraint Satisfaction",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "CS221: Overview of AI Systems",
+            "youtubeId": "yv_c3F-VzYc",
+            "duration": "55m",
+            "readingNotes": "Reflex models, state-based models, and variable-based models.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Artificial Intelligence",
+      "Bayesian Networks",
+      "Reinforcement Learning",
+      "Logic",
+      "Search"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&auto=format&fit=crop&q=80",
+    "title": "CS221: Artificial Intelligence: Principles and Techniques"
+  },
+  {
+    "code": "CS193P",
+    "description": "Native mobile app development using Apple Swift and SwiftUI. Declarative UI, MVVM architecture, animation, gestures, and Core Data.",
+    "institution": "Stanford Online",
+    "instructor": "Paul Hegarty",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "cs193p-m1",
+        "title": "SwiftUI Views, Combine & MVVM",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "CS193p: Lecture 1 - Getting Started with SwiftUI",
+            "youtubeId": "bqu6BquVi2M",
+            "duration": "57m",
+            "readingNotes": "Xcode setup, View hierarchy, body properties, and modifier chaining.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Swift",
+      "SwiftUI",
+      "iOS Development",
+      "MVVM",
+      "Mobile UX"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&auto=format&fit=crop&q=80",
+    "title": "CS193P: Developing Applications for iOS with SwiftUI"
+  },
+  {
+    "code": "FSO-2024",
+    "description": "World-renowned production curriculum for React, Redux, Node.js, Express, MongoDB, GraphQL, TypeScript, and Docker containerization.",
+    "institution": "University of Helsinki",
+    "instructor": "Matti Luukkainen",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "fso-m1",
+        "title": "React Fundamentals & Component Architecture",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Full Stack Open: Introduction to React and State",
+            "youtubeId": "SqcY0GlETPk",
+            "duration": "60m",
+            "readingNotes": "Functional components, useState, immutable state updates, and rendering.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "Full Stack Open: Communicating with Server & REST",
+            "youtubeId": "s1Gtw_7j2b8",
+            "duration": "62m",
+            "readingNotes": "Axios, useEffect hook lifecycle, asynchronous promises, and JSON-server.",
+            "slidesUrl": ""
+          }
+        ]
+      },
+      {
+        "moduleId": "fso-m2",
+        "title": "Node.js Backend & MongoDB Persistence",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Full Stack Open: Backend Express & MongoDB",
+            "youtubeId": "8SF_h3xF3cE",
+            "duration": "63m",
+            "readingNotes": "Middleware pipelines, async/await error handlers, and schema design.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "Full Stack Open: User Administration & Token Auth",
+            "youtubeId": "26QPDBe-NB8",
+            "duration": "65m",
+            "readingNotes": "Bcrypt hashing, JSON Web Tokens, Bearer headers, and route protection.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "React",
+      "Node.js",
+      "Express",
+      "MongoDB",
+      "GraphQL",
+      "TypeScript",
+      "Docker",
+      "REST APIs"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&auto=format&fit=crop&q=80",
+    "title": "Full Stack Open: Deep Dive Into Modern Web Development"
+  },
+  {
+    "code": "FASTAI-v5",
+    "description": "Top-down pragmatic deep learning. Building state-of-the-art computer vision, NLP, and tabular models with PyTorch and fastai.",
+    "institution": "fast.ai / Univ of San Francisco",
+    "instructor": "Jeremy Howard",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "fastai-m1",
+        "title": "Getting Started with Deep Learning",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lesson 1: Deep Learning for Coders (2022)",
+            "youtubeId": "8SF_h3xF3cE",
+            "duration": "82m",
+            "readingNotes": "Training computer vision models from scratch with 5 lines of code.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "PyTorch",
+      "fastai",
+      "Deep Learning",
+      "Computer Vision",
+      "Fine-Tuning"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1555255707-c07966088b7b?w=800&auto=format&fit=crop&q=80",
+    "title": "Practical Deep Learning for Coders"
+  },
+  {
+    "code": "CS6200",
+    "description": "Process management, POSIX pthreads, synchronization primitives, virtual memory management, IPC, and distributed file systems.",
+    "institution": "Georgia Tech",
+    "instructor": "Prof. Ada Gavrilovska",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "gt-cs6200-m1",
+        "title": "Processes, Threads & Synchronization",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "CS6200: Intro to Operating Systems & Processes",
+            "youtubeId": "26QPDBe-NB8",
+            "duration": "52m",
+            "readingNotes": "Process control blocks, address space abstractions, and kernel traps.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Operating Systems",
+      "C",
+      "Pthreads",
+      "Mutex & Semaphores",
+      "Virtual Memory",
+      "IPC"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=800&auto=format&fit=crop&q=80",
+    "title": "Introduction to Operating Systems (Specialization)"
+  },
+  {
+    "code": "15-445/645",
+    "description": "Design and implementation of database management system internals: buffer pools, B+ trees, concurrency control (2PL, MVCC), and query engines.",
+    "institution": "Carnegie Mellon University (CMU)",
+    "instructor": "Prof. Andy Pavlo",
+    "level": "Undergraduate / Graduate",
+    "modules": [
+      {
+        "moduleId": "cmu-15445-m1",
+        "title": "Buffer Pool Management & Storage Engines",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 1: Course Introduction & Relational Model",
+            "youtubeId": "oeYBdqh42RM",
+            "duration": "75m",
+            "readingNotes": "Relational algebra, physical data independence, and DBMS architectures.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "Lecture 5: Buffer Pools & Memory Management",
+            "youtubeId": "1D_9kg3z8pQ",
+            "duration": "77m",
+            "readingNotes": "Buffer pool manager implementation, dirty frames, and page table locks.",
+            "slidesUrl": ""
+          }
+        ]
+      },
+      {
+        "moduleId": "cmu-15445-m2",
+        "title": "Tree Indexes & Concurrency Control",
+        "lectures": [
+          {
+            "lectureNumber": 1,
+            "title": "Lecture 7: Tree Indexes & B+ Trees",
+            "youtubeId": "7UJ4CFRGd-U",
+            "duration": "78m",
+            "readingNotes": "Node split algorithms, parent pointer propagation, and duplicate key handling.",
+            "slidesUrl": ""
+          },
+          {
+            "lectureNumber": 2,
+            "title": "Lecture 16: Concurrency Control Theory & 2PL",
+            "youtubeId": "Nx0lRdfU1_A",
+            "duration": "80m",
+            "readingNotes": "Conflict serializability, view serializability, and rigorous two-phase locking.",
+            "slidesUrl": ""
+          }
+        ]
+      }
+    ],
+    "playlistId": "",
+    "prerequisites": [],
+    "skillsTaught": [
+      "Database Internals",
+      "C++",
+      "B+ Trees",
+      "Concurreny Control (MVCC)",
+      "Query Execution",
+      "Storage Engines"
+    ],
+    "term": "Annual 2024",
+    "thumbnail": "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=800&auto=format&fit=crop&q=80",
+    "title": "Database Systems: Architecture & Query Optimization"
+  }
+]

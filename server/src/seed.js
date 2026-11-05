@@ -1,24 +1,36 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
 
 const User = require('./models/User');
 const Course = require('./models/Course');
 const Assessment = require('./models/Assessment');
 const Placement = require('./models/Placement');
 const PlacementApplication = require('./models/PlacementApplication');
+const Enrollment = require('./models/Enrollment');
 
 const mongoUri = process.env.MONGODB_URI || 'mongodb://mongodb:27017/skillbridge';
 
-async function seed() {
+async function seedDatabase() {
+  console.log('\n======================================================');
+  console.log('🚀 SkillBridge Automated Database Initializer & Seeder');
+  console.log('======================================================');
+  console.log(`[Connecting to MongoDB]: ${mongoUri}`);
+
   await mongoose.connect(mongoUri);
-  console.log('[Seed]: Connected to MongoDB');
+  console.log('✔ Connected to MongoDB successfully.\n');
 
   const salt = await bcrypt.genSalt(10);
   const passwordHash = await bcrypt.hash('password123', salt);
 
-  // 1. Users
-  const usersData = [
+  // --------------------------------------------------------------------------
+  // 1. DEFAULT AUTHENTICATION ACCOUNTS (STUDENTS, FACULTY MENTORS, ADMINS)
+  // --------------------------------------------------------------------------
+  console.log('--- 1. Initializing User Accounts & Academic Identities ---');
+  const defaultUsers = [
+    // Students
     {
       name: 'Aditya Sharma',
       email: 'aditya@example.com',
@@ -103,6 +115,8 @@ async function seed() {
         { date: '2026-11-02', count: 5, action: 'Built LoRA Fine-Tuning Sandbox' }
       ]
     },
+
+    // Faculty Mentors across 8 Disciplines
     {
       name: 'Dr. Aris Thorne',
       email: 'thorne@faculty.edu',
@@ -114,17 +128,115 @@ async function seed() {
         title: 'Associate Professor',
         designation: 'Associate Professor & Systems Lab Director',
         disciplines: ['Distributed Systems', 'Operating Systems', 'Consensus Algorithms'],
-        officeLocation: 'Academic Complex Block B, Room 304',
+        officeLocation: 'Block B, Turing Hall 304',
         officeHours: 'Mon-Thu 2:00 PM - 5:00 PM',
         contactEmail: 'thorne@faculty.edu'
       }
     },
     {
+      name: 'Prof. Elena Rostova',
+      email: 'elena@faculty.edu',
+      password: passwordHash,
+      role: 'faculty',
+      headline: 'Associate Professor | NLP, LLM Architectures & Transformers',
+      staffProfile: {
+        department: 'Information Technology',
+        title: 'Associate Professor',
+        designation: 'Director of Applied NLP Research',
+        disciplines: ['Natural Language Processing', 'Transformers', 'Self-Attention Models'],
+        officeLocation: 'Block A, Lovelace Suite 210',
+        officeHours: 'Wed-Fri 3:00 PM - 5:00 PM',
+        contactEmail: 'elena@faculty.edu'
+      }
+    },
+    {
+      name: 'Dr. Marcus Sterling',
+      email: 'sterling@faculty.edu',
+      password: passwordHash,
+      role: 'faculty',
+      headline: 'Professor of Cryptography & Network Security',
+      staffProfile: {
+        department: 'Cybersecurity & Networks',
+        title: 'Professor & Lab Head',
+        designation: 'Chair of Cyber Defence',
+        disciplines: ['Zero-Knowledge Proofs', 'Post-Quantum Cryptography', 'Kernel Security'],
+        officeLocation: 'Security Wing, Block C Room 102',
+        officeHours: 'Tue-Thu 10:00 AM - 1:00 PM',
+        contactEmail: 'sterling@faculty.edu'
+      }
+    },
+    {
+      name: 'Prof. Ananya Sen',
+      email: 'ananya@faculty.edu',
+      password: passwordHash,
+      role: 'faculty',
+      headline: 'Lead Faculty | Theoretical Computer Science & Complexity',
+      staffProfile: {
+        department: 'Computer Science',
+        title: 'Assistant Professor',
+        designation: 'Director of Algorithms Institute',
+        disciplines: ['Algorithms & Complexity', 'Graph Theory', 'Approximation Algorithms'],
+        officeLocation: 'Ramanujan Mathematical Sciences 401',
+        officeHours: 'Mon-Wed 11:00 AM - 2:00 PM',
+        contactEmail: 'ananya@faculty.edu'
+      }
+    },
+    {
+      name: 'Dr. Devraj Mukherjee',
+      email: 'devraj@faculty.edu',
+      password: passwordHash,
+      role: 'faculty',
+      headline: 'Professor | Database Engines, High-Throughput OLAP & KV Stores',
+      staffProfile: {
+        department: 'Information Technology',
+        title: 'Professor',
+        designation: 'Data Systems Group Chair',
+        disciplines: ['Database Internals', 'LSM Trees & RocksDB', 'Query Optimization'],
+        officeLocation: 'Dijkstra Complex 505',
+        officeHours: 'Mon-Thu 4:00 PM - 6:00 PM',
+        contactEmail: 'devraj@faculty.edu'
+      }
+    },
+    {
+      name: 'Prof. Sarah Jenkins',
+      email: 'jenkins@faculty.edu',
+      password: passwordHash,
+      role: 'faculty',
+      headline: 'Associate Professor | Computer Vision, NeRFs & Robotics',
+      staffProfile: {
+        department: 'Robotics & AI',
+        title: 'Associate Professor',
+        designation: 'Robotics Perception Lab Lead',
+        disciplines: ['3D Vision', 'Diffusion Models', 'Autonomous Navigation'],
+        officeLocation: 'Robotics Hangar, Bay 4',
+        officeHours: 'Tue-Fri 2:00 PM - 4:00 PM',
+        contactEmail: 'jenkins@faculty.edu'
+      }
+    },
+    {
+      name: 'Dr. Vikramaditya Rao',
+      email: 'rao@faculty.edu',
+      password: passwordHash,
+      role: 'faculty',
+      headline: 'Associate Professor | High Performance Computing & GPU Kernels',
+      staffProfile: {
+        department: 'Computer Engineering',
+        title: 'Associate Professor',
+        designation: 'HPC Cluster Director',
+        disciplines: ['CUDA Programming', 'Triton & FlashAttention', 'Parallel Computing'],
+        officeLocation: 'Supercomputing Facility 201',
+        officeHours: 'Wed-Fri 1:00 PM - 4:00 PM',
+        contactEmail: 'rao@faculty.edu'
+      }
+    },
+
+    // Administration
+    {
       name: 'Dr. Kaelen Vance',
       email: 'vance@faculty.edu',
       password: passwordHash,
       role: 'admin',
-      headline: 'Dean of Academic Computing & Placement Directorate',
+      headline: 'Dean of Academic Computing & Corporate Placement Directorate',
       staffProfile: {
         department: 'Information Technology',
         title: 'Dean & Professor',
@@ -134,35 +246,33 @@ async function seed() {
         officeHours: 'Tue-Fri 10:00 AM - 1:00 PM',
         contactEmail: 'vance@faculty.edu'
       }
-    },
-    {
-      name: 'Prof. Elena Rostova',
-      email: 'elena@faculty.edu',
-      password: passwordHash,
-      role: 'faculty',
-      headline: 'Assistant Professor | NLP & Deep Learning',
-      staffProfile: {
-        department: 'Information Technology',
-        title: 'Assistant Professor',
-        designation: 'Assistant Professor of Machine Learning',
-        disciplines: ['NLP', 'Transformers', 'Deep Learning'],
-        officeLocation: 'Turing Hall 210',
-        officeHours: 'Wed-Fri 3:00 PM - 5:00 PM',
-        contactEmail: 'elena@faculty.edu'
-      }
     }
   ];
 
-  for (const u of usersData) {
+  for (const u of defaultUsers) {
     await User.findOneAndUpdate({ email: u.email }, u, { upsert: true, new: true });
-    console.log(`[Seed User]: ${u.name} (${u.email}) [${u.role}]`);
+    console.log(`  ✓ Seeded User: ${u.name} (${u.email}) [${u.role.toUpperCase()}]`);
   }
 
-  // 2. Curated Courses (Preserve all existing courses in collection)
-  const existingCoursesCount = await Course.countDocuments();
-  console.log(`[Seed]: Current Courses in DB: ${existingCoursesCount}`);
+  // --------------------------------------------------------------------------
+  // 2. CURATED 28 UNIVERSITY COURSES (STANFORD, MIT, HARVARD, BERKELEY, CMU)
+  // --------------------------------------------------------------------------
+  console.log('\n--- 2. Initializing 28 University Courses Catalog ---');
+  const catalogPath = path.join(__dirname, 'data', 'coursesCatalog.json');
+  if (fs.existsSync(catalogPath)) {
+    const coursesData = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
+    for (const c of coursesData) {
+      await Course.findOneAndUpdate({ code: c.code }, c, { upsert: true, new: true });
+    }
+    console.log(`  ✓ Successfully seeded ${coursesData.length} university courses from catalog.`);
+  } else {
+    console.warn(`  ⚠ Catalog file ${catalogPath} not found.`);
+  }
 
-  // 3. Assessments
+  // --------------------------------------------------------------------------
+  // 3. COHORT BENCHMARK ASSESSMENTS
+  // --------------------------------------------------------------------------
+  console.log('\n--- 3. Initializing Cohort Benchmark Assessments ---');
   const assessmentsData = [
     {
       title: 'Cohort Benchmark: Distributed Systems & Raft Consensus',
@@ -224,16 +334,86 @@ async function seed() {
           points: 50
         }
       ]
+    },
+    {
+      title: 'CMU 15-445 Verification: B+ Tree Indexing & Buffer Pool Management',
+      description: 'Storage engine benchmarking covering LRU-K frame evictions, latch crabbing protocols, and disk page layouts.',
+      skill: 'Database Systems',
+      category: 'skill-verification',
+      targetClass: { department: 'All', year: 0, section: 'All' },
+      timeLimitMinutes: 30,
+      passingScore: 75,
+      questions: [
+        {
+          type: 'mcq',
+          question: 'Why does the LRU-K buffer replacement policy outperform standard LRU in database management systems?',
+          options: [
+            'It replaces frames based on time of K-th backward reference, mitigating sequential scan pollution.',
+            'It eliminates hash table lock contention completely across buffer frames.',
+            'It avoids dirty page flushes to non-volatile storage.',
+            'It reduces pointer width from 64-bit to 32-bit.'
+          ],
+          correctAnswer: 0,
+          explanation: 'LRU-K uses the backward distance to the K-th previous access to differentiate between frequent sequential scans and genuine popular pages.',
+          points: 50
+        },
+        {
+          type: 'conceptual',
+          question: 'Describe how Latch Crabbing / Coupling safely allows concurrent search and insert operations in a B+ Tree.',
+          sampleSolution: 'Search starts at root and latches child before unlatching parent. Inserts hold parent latches until a child is found to be safe (will not split).',
+          points: 50
+        }
+      ]
+    },
+    {
+      title: 'Full Stack Architecture: Microservices, Redis Caching & Event Loops',
+      description: 'Evaluation on Node.js asynchronous event loops, idempotency keys, and distributed caching strategies.',
+      skill: 'Full Stack Engineering',
+      category: 'cohort-drive',
+      targetClass: { department: 'All', year: 0, section: 'All' },
+      timeLimitMinutes: 20,
+      passingScore: 70,
+      questions: [
+        {
+          type: 'mcq',
+          question: 'What happens when a long-running CPU-bound mathematical loop executes synchronously in a Node.js Express route?',
+          options: [
+            'It blocks the single JavaScript event loop, preventing all incoming HTTP socket requests from being serviced.',
+            'It automatically spawns a separate OS worker thread from the libuv pool.',
+            'Node.js automatically context-switches to the next asynchronous callback.',
+            'The OS dynamically balances the thread across idle CPU cores.'
+          ],
+          correctAnswer: 0,
+          explanation: 'Node.js runs user JavaScript on a single thread. CPU-intensive loops starve the event loop, causing all concurrent connections to stall.',
+          points: 50
+        },
+        {
+          type: 'mcq',
+          question: 'Which caching strategy prevents "Cache Avalanche" when thousands of cache keys expire simultaneously?',
+          options: [
+            'Adding a randomized jitter offset to key TTL durations.',
+            'Using write-through cache eviction without read quorums.',
+            'Increasing the database connection pool size to infinity.',
+            'Disabling Redis memory persistence (AOF/RDB).'
+          ],
+          correctAnswer: 0,
+          explanation: 'Adding random jitter to expiration times spreads out database misses so all keys do not simultaneously expire.',
+          points: 50
+        }
+      ]
     }
   ];
 
   for (const a of assessmentsData) {
     await Assessment.findOneAndUpdate({ title: a.title }, a, { upsert: true, new: true });
-    console.log(`[Seed Assessment]: ${a.title}`);
+    console.log(`  ✓ Seeded Assessment: ${a.title}`);
   }
 
-  // 4. Placement Drives
-  const placementsData = [
+  // --------------------------------------------------------------------------
+  // 4. CAMPUS RECRUITMENT DRIVES
+  // --------------------------------------------------------------------------
+  console.log('\n--- 4. Initializing Campus Recruitment Drives ---');
+  const drivesData = [
     {
       companyName: 'Microsoft',
       roleTitle: 'Software Engineer - Azure Cloud Core',
@@ -284,27 +464,94 @@ async function seed() {
       driveDate: new Date('2026-12-12'),
       registrationDeadline: new Date('2026-11-30'),
       selectionProcess: ['Google Coding Challenge', '3 Technical Rounds', 'Googleyness & Leadership']
+    },
+    {
+      companyName: 'Meta Platforms',
+      roleTitle: 'Production Engineer - Global Infrastructure',
+      driveType: 'On-Campus',
+      status: 'Registration Open',
+      ctcPackage: '44 - 52 LPA',
+      location: 'Hyderabad / Hybrid',
+      description: 'Operate global scale edge caches, Linux kernel observability via eBPF, and real-time streaming pipelines for 3+ billion users.',
+      eligibleDepartments: ['Information Technology', 'Computer Science'],
+      eligibleGraduationYears: [2026, 2027],
+      minCgpa: 8.0,
+      requiredSkills: ['Linux Internals', 'Python', 'Distributed Systems', 'Networking'],
+      preferredSkills: ['eBPF', 'C++', 'Kubernetes'],
+      driveDate: new Date('2026-12-18'),
+      registrationDeadline: new Date('2026-12-05'),
+      selectionProcess: ['Linux Systems Screener', 'Systems Architecture', 'Live Debugging Round', 'HR']
+    },
+    {
+      companyName: 'Atlassian',
+      roleTitle: 'Cloud Platform & Microservices Engineer',
+      driveType: 'Virtual Drive',
+      status: 'Registration Open',
+      ctcPackage: '36 - 42 LPA',
+      location: 'Bangalore / Remote',
+      description: 'Build enterprise-grade collaboration platforms supporting Jira, Confluence, and Bitbucket using event-driven architectures.',
+      eligibleDepartments: ['Information Technology', 'Computer Science', 'Data Science'],
+      eligibleGraduationYears: [2026, 2027],
+      minCgpa: 7.5,
+      requiredSkills: ['React', 'Node.js', 'Distributed Systems', 'PostgreSQL'],
+      preferredSkills: ['Kafka', 'AWS', 'GraphQL'],
+      driveDate: new Date('2026-12-22'),
+      registrationDeadline: new Date('2026-12-10'),
+      selectionProcess: ['Online Assessment', 'Full Stack Coding Round', 'System Design', 'Values Interview']
     }
   ];
 
-  for (const p of placementsData) {
-    await Placement.findOneAndUpdate({ companyName: p.companyName, roleTitle: p.roleTitle }, p, { upsert: true, new: true });
-    console.log(`[Seed Placement]: ${p.companyName} (${p.ctcPackage})`);
+  for (const d of drivesData) {
+    await Placement.findOneAndUpdate({ companyName: d.companyName, roleTitle: d.roleTitle }, d, { upsert: true, new: true });
+    console.log(`  ✓ Seeded Placement Drive: ${d.companyName} (${d.ctcPackage})`);
   }
 
-  // 5. Sample Placement Applications for Tickets Demo
-  const seededDrives = await Placement.find();
-  const seededStudents = await User.find({ role: 'student' });
+  // --------------------------------------------------------------------------
+  // 5. SEED ENROLLMENTS, LECTURE WATCH DATA & APPLICATION TICKETS
+  // --------------------------------------------------------------------------
+  console.log('\n--- 5. Initializing Student Course Enrollments & Drive Tickets ---');
+  const studentUsers = await User.find({ role: 'student' });
+  const activeDrives = await Placement.find();
+  const allCourses = await Course.find();
 
-  for (const student of seededStudents) {
-    for (let i = 0; i < Math.min(2, seededDrives.length); i++) {
-      const drive = seededDrives[i];
-      const existing = await PlacementApplication.findOne({ placement: drive._id, student: student._id });
-      if (!existing) {
+  // Enroll students in courses with watch progress & sample project artifacts
+  for (const student of studentUsers) {
+    for (let cIdx = 0; cIdx < Math.min(3, allCourses.length); cIdx++) {
+      const course = allCourses[cIdx];
+      const existingEnroll = await Enrollment.findOne({ user: student._id, course: course._id });
+      if (!existingEnroll) {
+        await Enrollment.create({
+          user: student._id,
+          course: course._id,
+          completedLectures: [1, 2],
+          lastWatchedLecture: 2,
+          progressPercentage: 50,
+          notes: [{
+            lectureNumber: 1,
+            title: 'Foundational Mechanics & Notes',
+            content: 'Detailed lecture breakdown on mathematical invariants and asymptotic complexities.',
+            attachedFiles: []
+          }],
+          projectArtifacts: [{
+            title: `${course.code} Implementation Suite`,
+            description: 'Modular implementation completed following university lecture problem sets.',
+            repoUrl: 'https://github.com/skillbridge/portfolio-artifacts',
+            demoUrl: 'https://skillbridge.edu/demo',
+            submittedAt: new Date()
+          }]
+        });
+      }
+    }
+
+    // Register 2 placement tickets per student
+    for (let dIdx = 0; dIdx < Math.min(2, activeDrives.length); dIdx++) {
+      const drive = activeDrives[dIdx];
+      const existingApp = await PlacementApplication.findOne({ placement: drive._id, student: student._id });
+      if (!existingApp) {
         const deptCode = student.academicProfile?.department ? student.academicProfile.department.slice(0, 2).toUpperCase() : 'CS';
         const ticketNumber = `TKT-${new Date().getFullYear()}-${deptCode}-${Math.floor(1000 + Math.random() * 9000)}`;
         const stages = ['Registered', 'Shortlisted', 'Assessment Round', 'Technical Interview'];
-        const stage = stages[Math.floor(Math.random() * stages.length)];
+        const stage = stages[dIdx % stages.length];
 
         await PlacementApplication.create({
           ticketNumber,
@@ -323,20 +570,27 @@ async function seed() {
           },
           currentStage: stage,
           stageHistory: [
-            { stage: 'Registered', updatedAt: new Date(Date.now() - 86400000 * 3), notes: 'Student application submitted' },
-            { stage: stage, updatedAt: new Date(), notes: 'Audited by placement cell' }
+            { stage: 'Registered', updatedAt: new Date(Date.now() - 86400000 * 3), notes: 'Candidate registered through 1-Click Placement Portal.' },
+            { stage: stage, updatedAt: new Date(), notes: 'Reviewed and audited by campus placement cell.' }
           ]
         });
-        console.log(`[Seed Ticket]: ${ticketNumber} (${student.name} -> ${drive.companyName})`);
+        console.log(`  ✓ Issued Drive Ticket: ${ticketNumber} (${student.name} -> ${drive.companyName})`);
       }
     }
   }
 
-  console.log('[Seed]: All collections populated successfully!');
+  console.log('\n======================================================');
+  console.log('✅ ALL DEFAULT DATABASE VALUES SEEDED SUCCESSFULLY!');
+  console.log('======================================================');
+  console.log('Test Authentication Credentials:');
+  console.log('• Student:        aditya@example.com / password123');
+  console.log('• Faculty Mentor: thorne@faculty.edu / password123');
+  console.log('• Administrator:  vance@faculty.edu  / password123');
+  console.log('======================================================\n');
   process.exit(0);
 }
 
-seed().catch(err => {
-  console.error('[Seed Error]:', err);
+seedDatabase().catch(err => {
+  console.error('\n❌ [Seed Fatal Error]:', err);
   process.exit(1);
 });

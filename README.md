@@ -47,8 +47,10 @@ git checkout test
 # 2. Build and launch all containers
 docker-compose up -d --build
 
-# 3. Seed demonstration data (students, faculty, courses, drives, tickets)
-docker exec skillbridge-backend node src/seed.js
+# 3. Seed demonstration data (automatically populates courses, students, faculty, drives, and tickets)
+./seed-db.sh
+# or alternatively:
+npm run docker:seed
 ```
 
 The application is now live at:
