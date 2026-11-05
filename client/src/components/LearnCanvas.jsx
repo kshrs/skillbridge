@@ -276,9 +276,11 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
         },
         body: JSON.stringify({
           courseId: selectedCourse._id,
+          courseTitle: selectedCourse.title,
           moduleId: mod.moduleId,
           moduleTitle: mod.title,
-          skillsCovered: mod.skillsLearned || selectedCourse.skillsCovered
+          lectures: mod.lectures || [],
+          skillsCovered: mod.skillsLearned || selectedCourse.skillsTaught || selectedCourse.skillsCovered || []
         })
       });
 
@@ -302,6 +304,7 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
         const val = quizAnswers[q._id];
         return {
           questionId: q._id,
+          answer: q.type === 'mcq' ? (val ?? -1) : (val || ''),
           type: q.type,
           selectedOption: q.type === 'mcq' ? (val ?? -1) : -1,
           textAnswer: q.type !== 'mcq' ? (val || '') : ''
@@ -761,9 +764,10 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
                     <button
                       onClick={() => handleGenerateQuiz(mod)}
                       disabled={generatingQuiz}
-                      className="px-1.5 py-0.5 rounded border border-[var(--border)] text-[9px] font-mono text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] shrink-0"
+                      className="px-2 py-0.5 rounded border border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/30 text-[9px] font-mono text-blue-600 dark:text-blue-400 hover:bg-blue-100/50 dark:hover:bg-blue-900/50 shrink-0 font-medium transition-colors"
+                      title="Generate AI Comprehension Quiz using Gemini Flash"
                     >
-                      AI Quiz
+                      {generatingQuiz ? 'Generating...' : '✨ AI Quiz'}
                     </button>
                   </div>
 

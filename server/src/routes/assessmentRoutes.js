@@ -207,52 +207,129 @@ router.post('/:id/submit', protect, async (req, res) => {
   }
 });
 
-// POST /api/assessments/generate-module-quiz (Gemini or heuristic quiz generator)
+const { generateQuizWithGemini } = require('../services/geminiService');
+
+// POST /api/assessments/generate-module-quiz (Gemini AI Quiz Generation)
 router.post('/generate-module-quiz', protect, async (req, res) => {
   try {
-    const { courseTitle, moduleTitle, lectures = [] } = req.body;
-    const questions = [
-      {
-        question: `What fundamental engineering bottleneck does ${moduleTitle || 'this module'} primarily address in modern architectures?`,
-        options: [
-          'Linear scaling bottlenecks and computational latency across parallel nodes',
-          'Database disk I/O serialization during relational schema indexing',
-          'Single-threaded event loop starvation in asynchronous interpreters',
-          'Redundant network protocol packet fragmentation over LAN bridges'
-        ],
-        correctAnswer: 0,
-        explanation: 'The module emphasizes parallel throughput, distributed state synchronicity, and eliminating compute latency barriers.'
-      },
-      {
-        question: `When implementing the algorithms introduced in "${lectures[0]?.title || 'the core lecture'}", which architectural principle ensures fault tolerance?`,
-        options: [
-          'Stateless worker redundancy coupled with distributed consensus logs',
-          'Monolithic global state locking via synchronous mutex primitives',
-          'Optimistic local memory caching without quorum confirmation',
-          'Unconstrained peer-to-peer eventual consistency gossip protocols'
-        ],
-        correctAnswer: 0,
-        explanation: 'Stateless workers with distributed logs enable horizontal scalability and seamless failover.'
-      },
-      {
-        question: `Which metric is the most critical benchmark for validating production readiness in ${courseTitle || 'this domain'}?`,
-        options: [
-          'P99 tail latency under saturated load conditions',
-          'Total lines of source code in the binary executable',
-          'Number of comments per function block in the codebase',
-          'Number of local unit tests passing on offline developer machines'
-        ],
-        correctAnswer: 0,
-        explanation: 'P99 tail latency measures worst-case performance under true production load.'
+    const { courseId, courseTitle, moduleId, moduleTitle, lectures = [], skillsCovered = [] } = req.body;
+
+    // Check if an AI assessment was already generated and persisted for this course + module
+    let assessment = null;
+    if (courseId && moduleId) {
+      assessment = await Assessment.findOne({
+        courseId,
+        moduleId,
+        category: 'module-self-quiz'
+      });
+    }
+
+    if (!assessment) {
+      // 1. Attempt to generate questions with Gemini Flash
+      let geminiData = null;
+      try {
+        geminiData = await generateQuizWithGemini({
+          courseTitle,
+          moduleTitle,
+          lectures,
+          skills: skillsCovered
+        });
+      } catch (geminiErr) {
+        console.warn('[Gemini Generator Warning]:', geminiErr.message);
       }
-    ];
+
+      let questions = [];
+
+      if (geminiData && Array.isArray(geminiData.questions) && geminiData.questions.length > 0) {
+        questions = geminiData.questions.map(q => ({
+          type: 'mcq',
+          question: q.question,
+          options: q.options,
+          correctAnswer: q.correctAnswer,
+          explanation: q.explanation || '',
+          points: q.points || 25
+        }));
+      } else {
+        // High-quality contextual fallback if GEMINI_API_KEY is not yet supplied or rate-limited
+        const primaryLecture = (lectures[0]?.title || 'Core Syllabus Lecture').replace(/^Part \d+:\s*/, '');
+        const secondaryLecture = (lectures[1]?.title || 'System Implementation').replace(/^Part \d+:\s*/, '');
+
+        questions = [
+          {
+            type: 'mcq',
+            question: `In "${courseTitle}", which foundational engineering problem does ${moduleTitle} specifically address?`,
+            options: [
+              'Mitigating throughput and latency bottlenecks through algorithmic optimization',
+              'Redundant database relational locking during disk-level serialization',
+              'Single-threaded thread-pool starvation under blocking network I/O',
+              'Uncompressed packet serialization over hardware bus interconnects'
+            ],
+            correctAnswer: 0,
+            explanation: `The concepts taught in ${moduleTitle} are architected to maximize compute throughput while minimizing latency and state synchronization bottlenecks.`,
+            points: 25
+          },
+          {
+            type: 'mcq',
+            question: `When implementing the paradigms presented in "${primaryLecture}", what guarantees system correctness?`,
+            options: [
+              'Formal state-machine invariance and rigorous consistency checks',
+              'Optimistic memory caching without lock or barrier synchronization',
+              'Periodic background polling loops without interrupt handlers',
+              'Static CPU cycle counting without hardware-enforced memory fences'
+            ],
+            correctAnswer: 0,
+            explanation: 'Correctness in production systems depends on maintaining strict state-machine invariants across concurrent executions.',
+            points: 25
+          },
+          {
+            type: 'mcq',
+            question: `In modern production deployments of ${courseTitle}, which trade-off is critical regarding "${secondaryLecture}"?`,
+            options: [
+              'Balancing computational overhead with convergence speed and reliability',
+              'Trade-off between executable binary file size and terminal font color',
+              'Source code indentation depth versus interpreter startup time',
+              'Number of unit test files versus Docker container image hash size'
+            ],
+            correctAnswer: 0,
+            explanation: 'Engineers must continuously balance compute resource allocation against system responsiveness and fault tolerance.',
+            points: 25
+          },
+          {
+            type: 'mcq',
+            question: `What is the primary indicator of failure or performance degradation in the architecture covered by ${moduleTitle}?`,
+            options: [
+              'Elevated P99 tail latency and resource saturation under peak loads',
+              'Occasional warnings emitted to system debug consoles during idle states',
+              'Decrease in local developer disk storage usage over time',
+              'Absence of hardware reboot events during scheduled maintenance windows'
+            ],
+            correctAnswer: 0,
+            explanation: 'P99 tail latency spikes and queue saturation directly signal architectural bottlenecks under production workloads.',
+            points: 25
+          }
+        ];
+      }
+
+      // Persist the assessment in MongoDB so the student can submit answers and get graded
+      assessment = await Assessment.create({
+        title: `${courseTitle || 'Course'}: ${moduleTitle || 'Module'} AI Diagnostic`,
+        description: `Self-evaluation assessment covering key concepts, lectures, and architecture in ${moduleTitle || 'this module'}.`,
+        skill: (skillsCovered[0] || 'Computer Science'),
+        category: 'module-self-quiz',
+        courseId: courseId || null,
+        moduleId: moduleId || '',
+        timeLimitMinutes: 20,
+        passingScore: 70,
+        questions
+      });
+    }
 
     res.json({
       success: true,
-      title: `${courseTitle}: ${moduleTitle} Quiz`,
-      questions
+      assessment
     });
   } catch (err) {
+    console.error('[Generate Module Quiz Error]:', err);
     res.status(500).json({ error: err.message });
   }
 });
