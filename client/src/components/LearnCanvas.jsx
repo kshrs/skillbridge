@@ -34,12 +34,20 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
   const [search, setSearch] = useState('');
   const [selectedUniv, setSelectedUniv] = useState('All');
 
-  // Notes & file upload
+  // Notes, file upload & project submission
   const [noteContent, setNoteContent] = useState('');
   const [attachedFiles, setAttachedFiles] = useState([]);
   const [savingNote, setSavingNote] = useState(false);
   const [noteStatus, setNoteStatus] = useState('');
   const fileInputRef = useRef(null);
+
+  // Register Project Done
+  const [projectTitle, setProjectTitle] = useState('');
+  const [projectDesc, setProjectDesc] = useState('');
+  const [projectRepo, setProjectRepo] = useState('');
+  const [projectDemo, setProjectDemo] = useState('');
+  const [submittingProject, setSubmittingProject] = useState(false);
+  const [projectStatus, setProjectStatus] = useState('');
 
   // Dynamic AI Quiz
   const [generatingQuiz, setGeneratingQuiz] = useState(false);
@@ -125,30 +133,86 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
     }
   };
 
-  const handleProgress = async (lectureId) => {
+  const handleProgress = async (lecture) => {
     if (!selectedCourse) return;
     try {
-      const duration = selectedLecture?.durationSeconds || 3600;
+      const lecNum = lecture?.lectureNumber || (typeof lecture === 'number' ? lecture : 1);
+      const lecId = lecture?.lectureId || lecture?._id || lecture;
+      const isAlreadyDone = (enrollment?.completedLectures || []).includes(lecNum);
+      const markCompleted = !isAlreadyDone;
+
       const res = await fetch(`/api/enrollment/${selectedCourse._id}/progress`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ lectureId, playedSeconds: duration, durationSeconds: duration })
+        body: JSON.stringify({ 
+          lectureNumber: lecNum, 
+          lectureId: lecId, 
+          completed: markCompleted 
+        })
       });
+
       if (res.ok) {
         const data = await res.json();
+        const updatedList = data.completedLectures || (markCompleted ? [...(enrollment?.completedLectures || []), lecNum] : (enrollment?.completedLectures || []).filter(n => n !== lecNum));
+        const updatedProg = data.progressPercentage ?? data.progress ?? 0;
+
         setEnrollment(prev => ({
           ...prev,
-          progress: data.progress,
-          completedLectures: data.completedLectures
+          progress: updatedProg,
+          progressPercentage: updatedProg,
+          completedLectures: updatedList
         }));
+
         fetchInitialData();
         if (onActivityUpdated) onActivityUpdated();
       }
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const handleRegisterProject = async (e) => {
+    e.preventDefault();
+    if (!projectTitle.trim() || !selectedCourse) return;
+
+    try {
+      setSubmittingProject(true);
+      const res = await fetch(`/api/enrollment/${selectedCourse._id}/projects`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: projectTitle.trim(),
+          description: projectDesc.trim(),
+          repoUrl: projectRepo.trim(),
+          demoUrl: projectDemo.trim()
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setProjectStatus('Project registered successfully!');
+        setProjectTitle('');
+        setProjectDesc('');
+        setProjectRepo('');
+        setProjectDemo('');
+        setEnrollment(prev => ({
+          ...prev,
+          projectArtifacts: data.projectArtifacts || []
+        }));
+        fetchInitialData();
+        if (onActivityUpdated) onActivityUpdated();
+        setTimeout(() => setProjectStatus(''), 3000);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSubmittingProject(false);
     }
   };
 
@@ -360,14 +424,15 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
                 </div>
 
                 <button
-                  onClick={() => handleProgress(currentLecture.lectureId || currentLecture._id)}
-                  className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
-                    completedLectures.includes(currentLecture.lectureId || currentLecture._id)
-                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400'
-                      : 'bg-[var(--text-primary)] text-[var(--bg-page)]'
+                  onClick={() => handleProgress(currentLecture)}
+                  className={`px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all flex items-center gap-1.5 ${
+                    completedLectures.includes(currentLecture.lectureNumber || 1)
+                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+                      : 'bg-[var(--text-primary)] text-[var(--bg-page)] hover:opacity-90 shadow-sm'
                   }`}
                 >
-                  {completedLectures.includes(currentLecture.lectureId || currentLecture._id) ? 'Completed' : 'Mark Watched'}
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  <span>{completedLectures.includes(currentLecture.lectureNumber || 1) ? 'Watched ✓' : 'Mark Watched'}</span>
                 </button>
               </div>
             )}
@@ -386,6 +451,12 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
                   className={`pb-1 transition-all ${courseTab === 'notes' ? 'border-b-2 border-[var(--text-primary)] font-semibold text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
                 >
                   Notes & Files ({attachedFiles.length})
+                </button>
+                <button
+                  onClick={() => setCourseTab('projects')}
+                  className={`pb-1 transition-all ${courseTab === 'projects' ? 'border-b-2 border-[var(--text-primary)] font-semibold text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
+                >
+                  Register Project Done ({(enrollment?.projectArtifacts || []).length})
                 </button>
                 {activeQuiz && (
                   <button
@@ -449,6 +520,146 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
                     >
                       {savingNote ? 'Saving...' : noteStatus || 'Save Notes'}
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Course Project Submission Tab */}
+              {courseTab === 'projects' && (
+                <div className="space-y-4 text-xs">
+                  <div className="p-3 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-[var(--text-primary)]">
+                        Register Implementation Artifact / Project
+                      </span>
+                      <span className="text-[10px] text-[var(--text-tertiary)]">
+                        Links will be showcased on your academic dossier
+                      </span>
+                    </div>
+
+                    {projectStatus && (
+                      <div className="p-2 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-medium text-[11px]">
+                        {projectStatus}
+                      </div>
+                    )}
+
+                    <form onSubmit={handleRegisterProject} className="space-y-3">
+                      <div>
+                        <label className="text-[11px] text-[var(--text-secondary)] block mb-1">
+                          Project Title *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={projectTitle}
+                          onChange={(e) => setProjectTitle(e.target.value)}
+                          placeholder="e.g. Distributed Key-Value Store with Raft Consensus"
+                          className="w-full px-3 py-1.5 rounded-md border border-[var(--border)] bg-[var(--bg-page)] text-[var(--text-primary)] text-xs focus:outline-none focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] text-[var(--text-secondary)] block mb-1">
+                          Engineering Architecture & Technical Summary
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={projectDesc}
+                          onChange={(e) => setProjectDesc(e.target.value)}
+                          placeholder="Key algorithms, concurrency primitives, or dataset benchmarks..."
+                          className="w-full px-3 py-1.5 rounded-md border border-[var(--border)] bg-[var(--bg-page)] text-[var(--text-primary)] text-xs focus:outline-none focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-[11px] text-[var(--text-secondary)] block mb-1">
+                            GitHub Repository URL
+                          </label>
+                          <input
+                            type="url"
+                            value={projectRepo}
+                            onChange={(e) => setProjectRepo(e.target.value)}
+                            placeholder="https://github.com/..."
+                            className="w-full px-3 py-1.5 rounded-md border border-[var(--border)] bg-[var(--bg-page)] text-[var(--text-primary)] text-xs focus:outline-none focus:border-blue-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[11px] text-[var(--text-secondary)] block mb-1">
+                            Live Demo / Paper Writeup URL (Optional)
+                          </label>
+                          <input
+                            type="url"
+                            value={projectDemo}
+                            onChange={(e) => setProjectDemo(e.target.value)}
+                            placeholder="https://..."
+                            className="w-full px-3 py-1.5 rounded-md border border-[var(--border)] bg-[var(--bg-page)] text-[var(--text-primary)] text-xs focus:outline-none focus:border-blue-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end pt-1">
+                        <button
+                          type="submit"
+                          disabled={submittingProject || !projectTitle.trim()}
+                          className="px-4 py-1.5 rounded bg-[var(--text-primary)] text-[var(--bg-page)] text-xs font-semibold hover:opacity-90 disabled:opacity-40 transition-all"
+                        >
+                          {submittingProject ? 'Registering...' : 'Register Project Done'}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* Existing registered projects for this course */}
+                  <div className="space-y-2">
+                    <span className="text-[11px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider block">
+                      Registered Projects for This Course ({(enrollment?.projectArtifacts || []).length})
+                    </span>
+
+                    {(enrollment?.projectArtifacts || []).length === 0 ? (
+                      <p className="text-[11px] text-[var(--text-tertiary)] italic">
+                        No projects submitted yet for this curriculum.
+                      </p>
+                    ) : (
+                      <div className="space-y-2">
+                        {enrollment.projectArtifacts.map((proj, pIdx) => (
+                          <div key={pIdx} className="p-3 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] space-y-1">
+                            <div className="flex items-center justify-between">
+                              <span className="font-semibold text-[var(--text-primary)]">{proj.title}</span>
+                              <span className="text-[10px] text-[var(--text-tertiary)] font-mono">
+                                {new Date(proj.submittedAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                            {proj.description && (
+                              <p className="text-[11px] text-[var(--text-secondary)]">{proj.description}</p>
+                            )}
+                            <div className="flex items-center gap-3 pt-1 text-[10px]">
+                              {proj.repoUrl && (
+                                <a
+                                  href={proj.repoUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-500 hover:underline font-mono"
+                                >
+                                  View Source Code &rarr;
+                                </a>
+                              )}
+                              {proj.demoUrl && (
+                                <a
+                                  href={proj.demoUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-purple-500 hover:underline font-mono"
+                                >
+                                  Live Demo &rarr;
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -558,8 +769,9 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
 
                   <div className="divide-y divide-[var(--border)] text-xs">
                     {(mod.lectures || []).map((lec, lIdx) => {
-                      const isCurrent = currentLecture?.lectureId === lec.lectureId || currentLecture?._id === lec._id;
-                      const isDone = completedLectures.includes(lec.lectureId || lec._id);
+                      const lecNum = lec.lectureNumber || lIdx + 1;
+                      const isCurrent = currentLecture?.title === lec.title || currentLecture?.lectureNumber === lecNum;
+                      const isDone = completedLectures.includes(lecNum);
 
                       return (
                         <div
@@ -571,9 +783,9 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
                         >
                           <div className="flex items-center gap-1.5 min-w-0">
                             {isDone ? (
-                              <CheckCircle className="w-3 h-3 text-emerald-500 shrink-0" />
+                              <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                             ) : (
-                              <Play className="w-3 h-3 opacity-40 shrink-0" />
+                              <Play className="w-3.5 h-3.5 opacity-40 shrink-0" />
                             )}
                             <span className="text-[11px] truncate">{lec.title}</span>
                           </div>
