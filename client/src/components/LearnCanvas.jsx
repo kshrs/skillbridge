@@ -740,16 +740,61 @@ export function LearnCanvas({ user, token, onActivityUpdated }) {
                       </button>
                     </div>
                   ) : (
-                    <div className="p-3.5 rounded-lg border border-[var(--border)] bg-[var(--bg-subtle)] text-xs space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-sm text-[var(--text-primary)]">
-                          Diagnostic Score: {quizResult.totalScore} / {quizResult.maxPossibleScore} ({quizResult.percentage}%)
-                        </span>
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold ${quizResult.passed ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'}`}>
+                    <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)] text-xs space-y-3 animate-fadeIn">
+                      <div className="flex items-center justify-between pb-2 border-b border-[var(--border)]">
+                        <div>
+                          <span className="font-bold text-sm text-[var(--text-primary)] block">
+                            Diagnostic Score: {quizResult.totalScore} / {quizResult.maxScore || quizResult.maxPossibleScore} ({quizResult.percentage}%)
+                          </span>
+                          <span className="text-[11px] text-[var(--text-tertiary)]">
+                            {quizResult.passed ? 'Skill competence benchmark satisfied' : 'Review recommended before retaking'}
+                          </span>
+                        </div>
+                        <span className={`px-2.5 py-1 rounded text-[11px] font-mono font-semibold ${quizResult.passed ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'}`}>
                           {quizResult.passed ? 'Passed' : 'Needs Review'}
                         </span>
                       </div>
-                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{quizResult.overallFeedback}</p>
+
+                      {/* AI Professor Feedback */}
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-mono text-[var(--text-tertiary)] uppercase tracking-wider block">
+                          AI Pedagogical Feedback
+                        </span>
+                        <p className="text-xs text-[var(--text-primary)] leading-relaxed bg-[var(--bg-surface)] p-2.5 rounded-lg border border-[var(--border)]">
+                          {quizResult.overallFeedback}
+                        </p>
+                      </div>
+
+                      {/* AI Next Steps & Suggestions */}
+                      {quizResult.nextSteps && quizResult.nextSteps.length > 0 && (
+                        <div className="space-y-1.5 pt-1">
+                          <span className="text-[10px] font-mono text-[var(--text-tertiary)] uppercase tracking-wider block">
+                            Recommended Next Steps
+                          </span>
+                          <div className="space-y-1">
+                            {quizResult.nextSteps.map((step, sIdx) => (
+                              <div key={sIdx} className="flex items-start gap-2 p-2 rounded-md bg-[var(--bg-surface)] border border-[var(--border)]">
+                                <span className="w-4 h-4 rounded-full bg-[var(--bg-subtle)] border border-[var(--border)] text-[10px] font-mono flex items-center justify-center shrink-0 text-[var(--text-secondary)]">
+                                  {sIdx + 1}
+                                </span>
+                                <span className="text-xs text-[var(--text-secondary)] leading-relaxed">{step}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex justify-end pt-2">
+                        <button
+                          onClick={() => {
+                            setQuizResult(null);
+                            setQuizAnswers({});
+                          }}
+                          className="px-3 py-1.5 rounded-md border border-[var(--border)] bg-[var(--bg-surface)] text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                        >
+                          Retake Quiz
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

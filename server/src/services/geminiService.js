@@ -98,4 +98,108 @@ Requirements:
   return null;
 };
 
-module.exports = { generateQuizWithGemini };
+/**
+ * Gemini AI Quiz Evaluation & Guidance Service
+ * Analyzes student test performance and provides personalized next steps.
+ */
+const evaluateQuizWithGemini = async ({ courseTitle, moduleTitle, score, maxScore, percentage, passed, questionsWithAnswers = [] }) => {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+
+  if (!apiKey) {
+    return {
+      feedback: passed
+        ? `Great work! You scored ${percentage}% and demonstrated solid mastery of ${moduleTitle}. Continue to the next module or register a project to apply these concepts.`
+        : `You scored ${percentage}%. Review the core lecture recordings in ${moduleTitle} and retake the quiz to solidify your understanding.`,
+      nextSteps: passed
+        ? [
+            `Proceed to the next module in ${courseTitle}.`,
+            'Register a hands-on project artifact in the "Register Project Done" tab.',
+            'Attempt the Cohort Benchmark Assessment to verify this skill on your profile.'
+          ]
+        : [
+            `Rewatch the key lectures in ${moduleTitle}.`,
+            'Review the explanation notes on missed questions.',
+            'Consult your course notes or message a faculty mentor for doubt clearance.'
+          ]
+    };
+  }
+
+  const reviewSummary = questionsWithAnswers.map((q, i) => {
+    return `Question ${i + 1}: "${q.question}"
+- Student Answer: "${q.selectedOptionText || q.submittedAnswer}"
+- Correct Answer: "${q.correctOptionText}"
+- Status: ${q.isCorrect ? 'CORRECT' : 'INCORRECT'}
+- Explanation: ${q.explanation}`;
+  }).join('\n\n');
+
+  const prompt = `You are a university professor in ${courseTitle}. A student just finished a module diagnostic quiz on "${moduleTitle}".
+Score: ${score} / ${maxScore} (${percentage}%)
+Result: ${passed ? 'PASSED' : 'NEEDS IMPROVEMENT'}
+
+Student performance breakdown:
+${reviewSummary}
+
+Task:
+1. Provide a concise, constructive 2-sentence pedagogical assessment of their strengths or conceptual misunderstandings.
+2. Provide exactly 3 actionable, prioritized next steps for this student (e.g., specific concepts to revisit, lectures to rewatch, coding projects to build, or advancing to next topics).
+
+Output MUST be ONLY valid JSON matching this schema without markdown fences:
+{
+  "feedback": "Two-sentence personalized evaluation here.",
+  "nextSteps": [
+    "Actionable step 1",
+    "Actionable step 2",
+    "Actionable step 3"
+  ]
+}`;
+
+  const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-flash'];
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.3,
+            responseMimeType: 'application/json'
+          }
+        })
+      });
+
+      if (!response.ok) continue;
+      const data = await response.json();
+      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawText) continue;
+
+      const cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleaned);
+      if (parsed && parsed.feedback && Array.isArray(parsed.nextSteps)) {
+        return parsed;
+      }
+    } catch (err) {
+      console.warn(`[Gemini Eval Exception with ${model}]:`, err.message);
+    }
+  }
+
+  return {
+    feedback: passed
+      ? `Great work! You scored ${percentage}% and demonstrated solid mastery of ${moduleTitle}.`
+      : `You scored ${percentage}%. Review the core concepts in ${moduleTitle} and retake the quiz.`,
+    nextSteps: passed
+      ? [
+          `Proceed to the next module in ${courseTitle}.`,
+          'Register a hands-on project artifact in the "Register Project Done" tab.',
+          'Attempt the Cohort Benchmark Assessment to verify this skill on your profile.'
+        ]
+      : [
+          `Rewatch the key lectures in ${moduleTitle}.`,
+          'Review the explanation notes on missed questions.',
+          'Consult your course notes or message a faculty mentor for doubt clearance.'
+        ]
+  };
+};
+
+module.exports = { generateQuizWithGemini, evaluateQuizWithGemini };

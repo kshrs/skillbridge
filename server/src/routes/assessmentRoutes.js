@@ -101,22 +101,25 @@ router.post('/', protect, staffOnly, async (req, res) => {
   }
 });
 
-// POST /api/assessments/:id/submit (Student evaluation)
+const { generateQuizWithGemini, evaluateQuizWithGemini } = require('../services/geminiService');
+
+// POST /api/assessments/:id/submit (Student evaluation with Gemini AI recommendations)
 router.post('/:id/submit', protect, async (req, res) => {
   try {
-    const assessment = await Assessment.findById(req.params.id);
+    const assessment = await Assessment.findById(req.params.id).populate('courseId');
     if (!assessment) return res.status(404).json({ message: 'Assessment not found' });
 
     const { answers = [], timeSpentSeconds = 0 } = req.body;
     let totalScore = 0;
     let maxScore = 0;
     const evaluatedAnswers = [];
+    const questionsForAI = [];
 
     assessment.questions.forEach((q) => {
       const qPoints = q.points || 25;
       maxScore += qPoints;
       const submitted = answers.find(a => a.questionId === q._id.toString());
-      const val = submitted ? submitted.answer : null;
+      const val = submitted ? (submitted.answer !== undefined ? submitted.answer : submitted.selectedOption) : null;
 
       let isCorrect = false;
       let awarded = 0;
@@ -156,10 +159,43 @@ router.post('/:id/submit', protect, async (req, res) => {
         scoreAwarded: awarded,
         feedback
       });
+
+      questionsForAI.push({
+        question: q.question,
+        submittedAnswer: val,
+        selectedOptionText: q.type === 'mcq' && q.options && val >= 0 ? q.options[val] : String(val),
+        correctOptionText: q.type === 'mcq' && q.options && q.correctAnswer >= 0 ? q.options[q.correctAnswer] : String(q.correctAnswer),
+        isCorrect,
+        explanation: q.explanation || ''
+      });
     });
 
     const percentage = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
     const passed = percentage >= (assessment.passingScore || 70);
+
+    // Call Gemini AI for personalized pedagogical evaluation and next steps
+    let aiEvaluation = null;
+    try {
+      const courseTitle = assessment.courseId?.title || assessment.title;
+      const moduleTitle = assessment.moduleId || assessment.description || 'Module';
+      aiEvaluation = await evaluateQuizWithGemini({
+        courseTitle,
+        moduleTitle,
+        score: totalScore,
+        maxScore,
+        percentage,
+        passed,
+        questionsWithAnswers: questionsForAI
+      });
+    } catch (aiErr) {
+      console.warn('[Gemini Evaluation Fallback]:', aiErr.message);
+    }
+
+    const overallFeedback = aiEvaluation?.feedback || (passed ? 'Comprehensive conceptual mastery demonstrated.' : 'Review recommended before proceeding.');
+    const nextSteps = aiEvaluation?.nextSteps || [
+      passed ? 'Proceed to the next module in this course.' : 'Review the lecture recordings in this module.',
+      passed ? 'Register a hands-on project artifact in the Project Registry.' : 'Review explanations on missed questions.'
+    ];
 
     const result = await AssessmentResult.create({
       user: req.user.id,
@@ -200,14 +236,25 @@ router.post('/:id/submit', protect, async (req, res) => {
       maxScore,
       percentage,
       passed,
-      answers: evaluatedAnswers
+      overallFeedback,
+      nextSteps,
+      answers: evaluatedAnswers,
+      result: {
+        _id: result._id,
+        totalScore,
+        maxScore,
+        maxPossibleScore: maxScore,
+        percentage,
+        passed,
+        overallFeedback,
+        nextSteps,
+        answers: evaluatedAnswers
+      }
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
-const { generateQuizWithGemini } = require('../services/geminiService');
 
 // POST /api/assessments/generate-module-quiz (Gemini AI Quiz Generation)
 router.post('/generate-module-quiz', protect, async (req, res) => {
